@@ -123,8 +123,7 @@ class WebDriverSingleton:
         patch_fetch_for_statsig(driver)
 
         page = driver.page_source
-
-        if not page is None and isinstance(page, str) and ("region" in page or "country" in page):
+        if not page is None and isinstance(page, str) and 'This service is not available in your region' in page:
             if self.proxy_try > self.max_proxy_tries:
                 raise ValueError("Cant bypass region block")
 
@@ -464,25 +463,25 @@ class WebDriverSingleton:
         logger.debug("Кнопка нажата, ждём ответа")
 
         try:
-            is_overlay_active = self._driver.execute_script("""
-                const elements = document.querySelectorAll("p");
-                for (const el of elements) {
-                    if (el.textContent.includes("Making sure you're human")) {
-                        const style = window.getComputedStyle(el);
-                        if (style.visibility !== 'hidden' && style.display !== 'none') {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            """)
+            # is_overlay_active = self._driver.execute_script("""
+            #     const elements = document.querySelectorAll("p");
+            #     for (const el of elements) {
+            #         if (el.textContent.includes("Making sure you're human")) {
+            #             const style = window.getComputedStyle(el);
+            #             if (style.visibility !== 'hidden' && style.display !== 'none') {
+            #                 return true;
+            #             }
+            #         }
+            #     }
+            #     return false;
+            # """)
 
-            if is_overlay_active:
-                logger.debug("Обнаружен overlay с капчей — блокируем процесс.")
-                return None
+            # if is_overlay_active:
+            #     logger.debug("Обнаружен overlay с капчей — блокируем процесс.")
+            #     return None
 
 
-            WebDriverWait(self._driver, self.TIMEOUT).until(
+            WebDriverWait(self._driver, min(self.TIMEOUT, 20)).until(
                 ec.any_of(
                     ec.presence_of_element_located((By.CSS_SELECTOR, "div.message-bubble p[dir='auto']")),
                     ec.presence_of_element_located((By.CSS_SELECTOR, "div.w-full.max-w-\\48rem\\]")),

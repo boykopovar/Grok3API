@@ -108,7 +108,7 @@ class History:
             return ""
 
     def del_history_by_id(self, history_id: str) -> bool:
-        """Удаляет историю чата по `history_id`."""
+        """Deletes the chat history by `history_id`."""
         try:
             if history_id in self._chat_histories:
                 del self._chat_histories[history_id]
@@ -134,7 +134,7 @@ class History:
             logger.error(f"В save_history: {e}")
 
     async def async_to_file(self):
-        """Асинхронно сохраняет данные в файл в формате JSON."""
+        """Asynchronously saves data to a file in JSON format."""
         try:
             data = {
                 "chat_histories": self._chat_histories,
@@ -167,7 +167,7 @@ class History:
 
 
 def encode_image(image: Union[str, BytesIO]) -> Optional[tuple[str, str]]:
-    """Закодирует изображение в base64 и определит его тип."""
+    """Encodes an image in base64 and determines its type."""
     try:
         if isinstance(image, str):
             with open(image, "rb") as image_file:

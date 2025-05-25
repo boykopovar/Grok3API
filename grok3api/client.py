@@ -14,18 +14,18 @@ from grok3api.types.GrokResponse import GrokResponse
 
 class GrokClient:
     """
-    Клиент для работы с Grok.
+    Client for working with Grok.
 
-    :param use_xvfb: Флаг для использования Xvfb. По умолчанию True. Имеет значения только на Linux.
-    :param proxy: (str) URL Прокси сервера, используется только в случае региональной блокировки.
-    :param history_msg_count: Количество сообщений в истории (по умолчанию `0` - сохранение истории отключено).
-    :param history_path: Путь к файлу с историей в JSON-формате. По умолчанию: "chat_histories.json"
-    :param history_as_json: Отправить ли в Grok историю в формате JSON (для history_msg_count > 0). По умолчанию: True
-    :param history_auto_save: Автоматическая перезапись истории в файл после каждого сообщения. По умолчанию: True
-    :param always_new_conversation: (bool) Использовать ли url создания нового чата при отправке запроса к Grok.
-    :param conversation_id: (str) ID чата grok.com Если хотите продолжить беседу с того места где остановились. Только в паре с response_id.
-    :param response_id: (str) ID ответа Grok в чате conversation_id. Если хотите продолжить беседу с того места где остановились. Только в паре с conversation_id.
-    :param timeout: Максимальное время на инициализацию клиента. По умолчанию: 120 секунд
+    :param use_xvfb: Flag to use Xvfb. Defaults to True. Applicable only on Linux.
+    :param proxy: (str) Proxy server URL, used only in cases of regional blocking.
+    :param history_msg_count: Number of messages to keep in history (default is `0` — history saving is disabled).
+    :param history_path: Path to the history file in JSON format. Default is "chat_histories.json".
+    :param history_as_json: Whether to send history to Grok in JSON format (for history_msg_count > 0). Defaults to True.
+    :param history_auto_save: Automatically overwrite history file after each message. Defaults to True.
+    :param always_new_conversation: (bool) Whether to use the new chat creation URL when sending a request to Grok.
+    :param conversation_id: (str) Grok chat ID. Use this to continue a conversation from where it left off. Must be used together with response_id.
+    :param response_id: (str) Grok response ID in the conversation_id chat. Use this to continue a conversation from where it left off. Must be used together with conversation_id.
+    :param timeout: Maximum time for client initialization. Default is 120 seconds.
     """
 
     NEW_CHAT_URL = "https://grok.com/rest/app-chat/conversations/new"
@@ -211,19 +211,20 @@ class GrokClient:
                       file_extension: str = "jpg",
                       file_mime_type: str = None) -> str:
         """
-        Загружает изображение на сервер из пути к файлу или BytesIO и возвращает fileMetadataId из ответа.
+        Uploads an image to the server from a file path or BytesIO and returns the fileMetadataId from the response.
 
         Args:
-            file_input (Union[str, BytesIO]): Путь к файлу или объект BytesIO с содержимым файла.
-            file_extension (str): Расширение файла без точки (например, "jpg", "png"). По умолчанию "jpg".
-            file_mime_type (str): MIME-тип файла. Если None, определяется автоматически.
+            file_input (Union[str, BytesIO]): File path or a BytesIO object containing the file content.
+            file_extension (str): File extension without the dot (e.g., "jpg", "png"). Defaults to "jpg".
+            file_mime_type (str): MIME type of the file. If None, it is determined automatically.
 
         Returns:
-            str: fileMetadataId из ответа сервера.
+            str: fileMetadataId from the server response.
 
         Raises:
-            ValueError: Если входные данные некорректны или ответ не содержит fileMetadataId.
+            ValueError: If the input data is invalid or the response does not contain fileMetadataId.
         """
+
         if isinstance(file_input, str):
             if os.path.exists(file_input):
                 with open(file_input, "rb") as f:
@@ -314,9 +315,8 @@ class GrokClient:
     def send_message(self,
                      message: str,
                      history_id: Optional[str] = None,
-                     proxy: Optional[str] = driver.web_driver.def_proxy,
                      **kwargs: Any) -> GrokResponse:
-        """Устаревший метод отправки сообщения. Используйте ask() напрямую."""
+        """Устаревший метод отправки сообщения. Please, use ask method."""
         logger.warning("Please, use GrokClient.ask method instead GrokClient.send_message")
         return self.ask(message=message,
                         history_id=history_id,
@@ -325,7 +325,6 @@ class GrokClient:
     async def async_ask(self,
                         message: str,
                         history_id: Optional[str] = None,
-                        proxy: Optional[str] = driver.web_driver.def_proxy,
                         new_conversation: bool = None,
                         timeout: Optional[int] = None,
                         temporary: bool = False,
@@ -347,35 +346,35 @@ class GrokClient:
                         sendFinalMetadata: bool = True,
                         toolOverrides: Optional[Dict[str, Any]] = None) -> GrokResponse:
         """
-        Асинхронная обёртка метода ask.
-        Отправляет запрос к API Grok с одним сообщением и дополнительными параметрами.
+        Asynchronous wrapper for the ask method.
+        Sends a request to the Grok API with a single message and additional parameters.
 
         Args:
-            message (str): Сообщение пользователя для отправки в API.
-            history_id (Optional[str]): Идентификатор для определения, какую историю чата использовать.
-            new_conversation (Optional[bool]): Использовать ли url нового чата при отправке запроса в Grok (не касается встроенного класса History).
-            timeout (int): Таймаут (в секундах) на ожидание ответа. По умолчанию: 360 или указанный при создании клиента.
-            temporary (bool): Указывает, является ли сессия или запрос временным. По умолчанию False.
-            modelName (str): Название модели ИИ для обработки запроса. По умолчанию "grok-3".
-            images (str / BytesIO / List[str / BytesIO]): Или путь к изображению, или base64-кодированное изображение, или BytesIO (можно список любого из перечисленных типов) для отправки. Не должно быть использовано fileAttachments.
-            fileAttachments (Optional[List[Dict[str, str]]]): Список вложений файлов. Каждый элемент — строка fileMetadataId.
-            imageAttachments (Optional[List[Dict[str, str]]]): Список вложений изображений, аналогично fileAttachments.
-            customInstructions (str): Дополнительные инструкции или контекст для модели. По умолчанию пустая строка.
-            deepsearch_preset (str): Предустановка для глубокого поиска. По умолчанию пустая строка.
-            disableSearch (bool): Отключить функцию поиска модели. По умолчанию False.
-            enableImageGeneration (bool): Включить генерацию изображений в ответе. По умолчанию True.
-            enableImageStreaming (bool): Включить потоковую передачу изображений. По умолчанию True.
-            enableSideBySide (bool): Включить отображение информации бок о бок. По умолчанию True.
-            imageGenerationCount (int): Количество генерируемых изображений. По умолчанию 2.
-            isPreset (bool): Указывает, является ли сообщение предустановленным. По умолчанию False.
-            isReasoning (bool): Включить режим рассуждений в ответе модели. По умолчанию False.
-            returnImageBytes (bool): Возвращать данные изображений в виде байтов. По умолчанию False.
-            returnRawGrokInXaiRequest (bool): Возвращать необработанный вывод от модели. По умолчанию False.
-            sendFinalMetadata (bool): Отправлять финальные метаданные с запросом. По умолчанию True.
-            toolOverrides (Optional[Dict[str, Any]]): Словарь для переопределения настроек инструментов. По умолчанию пустой словарь.
+            message (str): The user message to send to the API.
+            history_id (Optional[str]): Identifier to specify which chat history to use.
+            new_conversation (Optional[bool]): Whether to use the new chat URL when sending the request to Grok (does not apply to the built-in History class).
+            timeout (int): Timeout in seconds to wait for a response. Default is 360 or the value set during client creation.
+            temporary (bool): Indicates if the session or request is temporary. Defaults to False.
+            modelName (str): The AI model name for processing the request. Default is "grok-3".
+            images (str / BytesIO / List[str / BytesIO]): Either a path to an image, a base64-encoded image, or BytesIO object (or a list of any of these types) to send. Should not be used with fileAttachments.
+            fileAttachments (Optional[List[Dict[str, str]]]): List of file attachments. Each item is a string fileMetadataId.
+            imageAttachments (Optional[List[Dict[str, str]]]): List of image attachments, similar to fileAttachments.
+            customInstructions (str): Additional instructions or context for the model. Defaults to an empty string.
+            deepsearch_preset (str): Preset for deep search. Defaults to an empty string.
+            disableSearch (bool): Disable the model’s search functionality. Defaults to False.
+            enableImageGeneration (bool): Enable image generation in the response. Defaults to True.
+            enableImageStreaming (bool): Enable streaming of images. Defaults to True.
+            enableSideBySide (bool): Enable side-by-side display of information. Defaults to True.
+            imageGenerationCount (int): Number of images to generate. Defaults to 2.
+            isPreset (bool): Indicates if the message is a preset. Defaults to False.
+            isReasoning (bool): Enable reasoning mode in the model’s response. Defaults to False.
+            returnImageBytes (bool): Return image data as bytes. Defaults to False.
+            returnRawGrokInXaiRequest (bool): Return raw output from the model. Defaults to False.
+            sendFinalMetadata (bool): Send final metadata with the request. Defaults to True.
+            toolOverrides (Optional[Dict[str, Any]]): Dictionary to override tool settings. Defaults to an empty dictionary.
 
         Return:
-            GrokResponse: Ответ от API Grok в виде объекта.
+            GrokResponse: The response from the Grok API as an object.
         """
         try:
             return await asyncio.to_thread(self.ask,
@@ -430,35 +429,36 @@ class GrokClient:
             toolOverrides: Optional[Dict[str, Any]] = None
             ) -> GrokResponse:
         """
-        Отправляет запрос к API Grok с одним сообщением и дополнительными параметрами.
+        Sends a request to the Grok API with a single message and additional parameters.
 
         Args:
-            message (str): Сообщение пользователя для отправки в API.
-            history_id (Optional[str]): Идентификатор для определения, какую историю чата использовать.
-            new_conversation (Optional[bool]): Использовать ли url нового чата при отправке запроса в Grok (не касается встроенного класса History).
-            timeout (int): Таймаут (в секундах) на ожидание ответа. По умолчанию: 360 или указанный при создании клиента.
-            temporary (bool): Указывает, является ли сессия или запрос временным. По умолчанию False.
-            modelName (str): Название модели ИИ для обработки запроса. По умолчанию "grok-3".
-            images (str / BytesIO / List[str / BytesIO]): Или путь к изображению, или base64-кодированное изображение, или BytesIO (можно список любого из перечисленных типов) для отправки. Не должно быть использовано fileAttachments.
-            fileAttachments (Optional[List[Dict[str, str]]]): Список вложений файлов. Каждый элемент — строка fileMetadataId.
-            imageAttachments (Optional[List[Dict[str, str]]]): Список вложений изображений, аналогично fileAttachments.
-            customInstructions (str): Дополнительные инструкции или контекст для модели. По умолчанию пустая строка.
-            deepsearch_preset (str): Предустановка для глубокого поиска. По умолчанию пустая строка.
-            disableSearch (bool): Отключить функцию поиска модели. По умолчанию False.
-            enableImageGeneration (bool): Включить генерацию изображений в ответе. По умолчанию True.
-            enableImageStreaming (bool): Включить потоковую передачу изображений. По умолчанию True.
-            enableSideBySide (bool): Включить отображение информации бок о бок. По умолчанию True.
-            imageGenerationCount (int): Количество генерируемых изображений. По умолчанию 2.
-            isPreset (bool): Указывает, является ли сообщение предустановленным. По умолчанию False.
-            isReasoning (bool): Включить режим рассуждений в ответе модели. По умолчанию False.
-            returnImageBytes (bool): Возвращать данные изображений в виде байтов. По умолчанию False.
-            returnRawGrokInXaiRequest (bool): Возвращать необработанный вывод от модели. По умолчанию False.
-            sendFinalMetadata (bool): Отправлять финальные метаданные с запросом. По умолчанию True.
-            toolOverrides (Optional[Dict[str, Any]]): Словарь для переопределения настроек инструментов. По умолчанию пустой словарь.
+            message (str): The user message to send to the API.
+            history_id (Optional[str]): Identifier to specify which chat history to use.
+            new_conversation (Optional[bool]): Whether to use the new chat URL when sending the request to Grok (does not apply to the built-in History class).
+            timeout (int): Timeout in seconds to wait for a response. Default is 360 or the value set during client creation.
+            temporary (bool): Indicates if the session or request is temporary. Defaults to False.
+            modelName (str): The AI model name for processing the request. Default is "grok-3".
+            images (str / BytesIO / List[str / BytesIO]): Either a path to an image, a base64-encoded image, or BytesIO object (or a list of any of these types) to send. Should not be used with fileAttachments.
+            fileAttachments (Optional[List[Dict[str, str]]]): List of file attachments. Each item is a string fileMetadataId.
+            imageAttachments (Optional[List[Dict[str, str]]]): List of image attachments, similar to fileAttachments.
+            customInstructions (str): Additional instructions or context for the model. Defaults to an empty string.
+            deepsearch_preset (str): Preset for deep search. Defaults to an empty string.
+            disableSearch (bool): Disable the model’s search functionality. Defaults to False.
+            enableImageGeneration (bool): Enable image generation in the response. Defaults to True.
+            enableImageStreaming (bool): Enable streaming of images. Defaults to True.
+            enableSideBySide (bool): Enable side-by-side display of information. Defaults to True.
+            imageGenerationCount (int): Number of images to generate. Defaults to 2.
+            isPreset (bool): Indicates if the message is a preset. Defaults to False.
+            isReasoning (bool): Enable reasoning mode in the model’s response. Defaults to False.
+            returnImageBytes (bool): Return image data as bytes. Defaults to False.
+            returnRawGrokInXaiRequest (bool): Return raw output from the model. Defaults to False.
+            sendFinalMetadata (bool): Send final metadata with the request. Defaults to True.
+            toolOverrides (Optional[Dict[str, Any]]): Dictionary to override tool settings. Defaults to an empty dictionary.
 
         Return:
-            GrokResponse: Ответ от API Grok в виде объекта.
+            GrokResponse: The response from the Grok API as an object.
         """
+
         if timeout is None:
             timeout = self.timeout
 
