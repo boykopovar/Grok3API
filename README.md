@@ -1,9 +1,18 @@
 🚀 A Python library for interacting with the Grok 3 API without requiring login or manual cookie input. Perfect for out-of-the-box use.
 
 
+
 ## [➡ Ru ReadMe](docs/Ru/RuReadMe.md)
 
 # 🤖 Grok3API: Client for Working with Grok
+
+![Python](https://img.shields.io/badge/python-3.8%2B-blue?logo=python&logoColor=white)
+![Made with ❤️](https://img.shields.io/badge/Made%20with-%F0%9F%92%9C-red)
+
+![Stars](https://img.shields.io/github/stars/boykopovar/Grok3API?style=social)
+![Forks](https://img.shields.io/github/forks/boykopovar/Grok3API?style=social)
+![Issues](https://img.shields.io/github/issues/boykopovar/Grok3API?style=social)
+
 
 **Grok3API** is a powerful and user-friendly unofficial tool for interacting with Grok models (including Grok3), allowing you to send requests, receive text responses, and, most excitingly, **generated images** — all with automatic cookie management! 🎨✨ The project is designed with simplicity and automation in mind, so you can focus on creativity rather than technical details.
 
