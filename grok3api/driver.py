@@ -245,10 +245,10 @@ class WebDriverSingleton:
                 else:
                     current_version = self._get_chrome_version()
                 self.CHROME_VERSION = current_version
-                logger.info(f"Несовместимость браузера и драйвера, пробуем переустановить драйвер для Chrome {self.CHROME_VERSION}...")
+                logger.debug(f"Несовместимость браузера и драйвера, пробуем переустановить драйвер для Chrome {self.CHROME_VERSION}...")
                 self._driver = _create_driver()
                 self._setup_driver(self._driver, wait_loading, driver_timeout)
-                logger.info(f"Удалось установить версию драйвера на {self.CHROME_VERSION}.")
+                logger.debug(f"Удалось установить версию драйвера на {self.CHROME_VERSION}.")
                 self.WAS_FATAL = False
 
                 self.execute_script = self._driver.execute_script

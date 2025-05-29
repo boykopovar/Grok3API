@@ -1,5 +1,8 @@
 import asyncio
+import contextvars
+import functools
 import os
+from asyncio import events
 from typing import Optional, List, Union, Dict, Any, Tuple
 import base64
 import json
@@ -377,7 +380,7 @@ class GrokClient:
             GrokResponse: The response from the Grok API as an object.
         """
         try:
-            return await asyncio.to_thread(self.ask,
+            return await _to_thread(self.ask,
                                            message=message,
                                            history_id=history_id,
                                            new_conversation=new_conversation,
@@ -696,3 +699,10 @@ class GrokClient:
             "error": response_str,
             "details": []
         }
+
+async def _to_thread(func, /, *args, **kwargs):
+
+    loop = events.get_running_loop()
+    ctx = contextvars.copy_context()
+    func_call = functools.partial(ctx.run, func, *args, **kwargs)
+    return await loop.run_in_executor(None, func_call)

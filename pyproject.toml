@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "Grok3API"
-version = "0.1.0b5"
+version = "0.1.0b6"
 description = "Python-библиотека для взаимодействия с Grok3, ориентированная на максимальную простоту использования. Автоматически получает cookies, поэтому ничего не нужно указывать. A Python library for interacting with Grok3, focused on maximum ease of use. Automatically gets cookies, so you don't have to specify anything."
 authors = [{ name = "boykopovar", email = "boykopovar@gmail.com" }]
 license = "MIT"

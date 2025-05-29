@@ -7,7 +7,7 @@ from grok3api.client import GrokClient
 
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="[%(asctime)s] [%(levelname)s] [%(name)s]: %(message)s"
 )
 
