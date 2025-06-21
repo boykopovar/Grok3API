@@ -25,6 +25,7 @@ Grok3API.egg-info/
 coverage.xml
 .coverage
 htmlcov/
+images/
 
 *.tar.gz
 *.zip

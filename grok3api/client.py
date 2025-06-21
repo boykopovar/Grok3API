@@ -1,4 +1,3 @@
-import asyncio
 import contextvars
 import functools
 import os
@@ -328,7 +327,7 @@ class GrokClient:
     async def async_ask(self,
                         message: str,
                         history_id: Optional[str] = None,
-                        new_conversation: bool = None,
+                        new_conversation: Optional[bool] = None,
                         timeout: Optional[int] = None,
                         temporary: bool = False,
                         modelName: str = "grok-3",
@@ -347,7 +346,13 @@ class GrokClient:
                         returnImageBytes: bool = False,
                         returnRawGrokInXaiRequest: bool = False,
                         sendFinalMetadata: bool = True,
-                        toolOverrides: Optional[Dict[str, Any]] = None) -> GrokResponse:
+                        toolOverrides: Optional[Dict[str, Any]] = None,
+                        forceConcise: bool = True,
+                        disableTextFollowUps: bool = True,
+                        webpageUrls: Optional[List[str]] = None,
+                        disableArtifact: bool = False,
+                        responseModelId: str = "grok-3"
+                        ) -> GrokResponse:
         """
         Asynchronous wrapper for the ask method.
         Sends a request to the Grok API with a single message and additional parameters.
@@ -356,53 +361,63 @@ class GrokClient:
             message (str): The user message to send to the API.
             history_id (Optional[str]): Identifier to specify which chat history to use.
             new_conversation (Optional[bool]): Whether to use the new chat URL when sending the request to Grok (does not apply to the built-in History class).
-            timeout (int): Timeout in seconds to wait for a response. Default is 360 or the value set during client creation.
-            temporary (bool): Indicates if the session or request is temporary. Defaults to False.
-            modelName (str): The AI model name for processing the request. Default is "grok-3".
+            timeout (Optional[int]): Timeout in seconds to wait for a response.
+            temporary (bool): Indicates if the session or request is temporary.
+            modelName (str): The AI model name for processing the request.
             images (str / BytesIO / List[str / BytesIO]): Either a path to an image, a base64-encoded image, or BytesIO object (or a list of any of these types) to send. Should not be used with fileAttachments.
-            fileAttachments (Optional[List[Dict[str, str]]]): List of file attachments. Each item is a string fileMetadataId.
-            imageAttachments (Optional[List[Dict[str, str]]]): List of image attachments, similar to fileAttachments.
-            customInstructions (str): Additional instructions or context for the model. Defaults to an empty string.
-            deepsearch_preset (str): Preset for deep search. Defaults to an empty string.
-            disableSearch (bool): Disable the model’s search functionality. Defaults to False.
-            enableImageGeneration (bool): Enable image generation in the response. Defaults to True.
-            enableImageStreaming (bool): Enable streaming of images. Defaults to True.
-            enableSideBySide (bool): Enable side-by-side display of information. Defaults to True.
-            imageGenerationCount (int): Number of images to generate. Defaults to 2.
-            isPreset (bool): Indicates if the message is a preset. Defaults to False.
-            isReasoning (bool): Enable reasoning mode in the model’s response. Defaults to False.
-            returnImageBytes (bool): Return image data as bytes. Defaults to False.
-            returnRawGrokInXaiRequest (bool): Return raw output from the model. Defaults to False.
-            sendFinalMetadata (bool): Send final metadata with the request. Defaults to True.
-            toolOverrides (Optional[Dict[str, Any]]): Dictionary to override tool settings. Defaults to an empty dictionary.
+            fileAttachments (Optional[List[str]]): List of file attachments.
+            imageAttachments (Optional[List]): List of image attachments.
+            customInstructions (str): Additional instructions or context for the model.
+            deepsearch_preset (str): Preset for deep search.
+            disableSearch (bool): Disable the model’s search functionality.
+            enableImageGeneration (bool): Enable image generation in the response.
+            enableImageStreaming (bool): Enable streaming of images.
+            enableSideBySide (bool): Enable side-by-side display of information.
+            imageGenerationCount (int): Number of images to generate.
+            isPreset (bool): Indicates if the message is a preset.
+            isReasoning (bool): Enable reasoning mode in the model’s response.
+            returnImageBytes (bool): Return image data as bytes.
+            returnRawGrokInXaiRequest (bool): Return raw output from the model.
+            sendFinalMetadata (bool): Send final metadata with the request.
+            toolOverrides (Optional[Dict[str, Any]]): Dictionary to override tool settings.
+            forceConcise (bool): Whether to force concise responses.
+            disableTextFollowUps (bool): Disable text follow-ups.
+            webpageUrls (Optional[List[str]]): List of webpage URLs.
+            disableArtifact (bool): Disable artifact flag.
+            responseModelId (str): Model ID for the response metadata.
 
-        Return:
+        Returns:
             GrokResponse: The response from the Grok API as an object.
         """
         try:
             return await _to_thread(self.ask,
-                                           message=message,
-                                           history_id=history_id,
-                                           new_conversation=new_conversation,
-                                           timeout=timeout,
-                                           temporary=temporary,
-                                           modelName=modelName,
-                                           images=images,
-                                           fileAttachments=fileAttachments,
-                                           imageAttachments=imageAttachments,
-                                           customInstructions=customInstructions,
-                                           deepsearch_preset=deepsearch_preset,
-                                           disableSearch=disableSearch,
-                                           enableImageGeneration=enableImageGeneration,
-                                           enableImageStreaming=enableImageStreaming,
-                                           enableSideBySide=enableSideBySide,
-                                           imageGenerationCount=imageGenerationCount,
-                                           isPreset=isPreset,
-                                           isReasoning=isReasoning,
-                                           returnImageBytes=returnImageBytes,
-                                           returnRawGrokInXaiRequest=returnRawGrokInXaiRequest,
-                                           sendFinalMetadata=sendFinalMetadata,
-                                           toolOverrides=toolOverrides)
+                                    message=message,
+                                    history_id=history_id,
+                                    new_conversation=new_conversation,
+                                    timeout=timeout,
+                                    temporary=temporary,
+                                    modelName=modelName,
+                                    images=images,
+                                    fileAttachments=fileAttachments,
+                                    imageAttachments=imageAttachments,
+                                    customInstructions=customInstructions,
+                                    deepsearch_preset=deepsearch_preset,
+                                    disableSearch=disableSearch,
+                                    enableImageGeneration=enableImageGeneration,
+                                    enableImageStreaming=enableImageStreaming,
+                                    enableSideBySide=enableSideBySide,
+                                    imageGenerationCount=imageGenerationCount,
+                                    isPreset=isPreset,
+                                    isReasoning=isReasoning,
+                                    returnImageBytes=returnImageBytes,
+                                    returnRawGrokInXaiRequest=returnRawGrokInXaiRequest,
+                                    sendFinalMetadata=sendFinalMetadata,
+                                    toolOverrides=toolOverrides,
+                                    forceConcise=forceConcise,
+                                    disableTextFollowUps=disableTextFollowUps,
+                                    webpageUrls=webpageUrls,
+                                    disableArtifact=disableArtifact,
+                                    responseModelId=responseModelId)
         except Exception as e:
             logger.error(f"In async_ask: {e}")
             return GrokResponse({}, self.enable_artifact_files)
@@ -410,8 +425,8 @@ class GrokClient:
     def ask(self,
             message: str,
             history_id: Optional[str] = None,
-            new_conversation: bool = None,
-            timeout: int = None,
+            new_conversation: Optional[bool] = None,
+            timeout: Optional[int] = None,
             temporary: bool = False,
             modelName: str = "grok-3",
             images: Union[Optional[List[Union[str, BytesIO]]], str, BytesIO] = None,
@@ -429,7 +444,12 @@ class GrokClient:
             returnImageBytes: bool = False,
             returnRawGrokInXaiRequest: bool = False,
             sendFinalMetadata: bool = True,
-            toolOverrides: Optional[Dict[str, Any]] = None
+            toolOverrides: Optional[Dict[str, Any]] = None,
+            forceConcise: bool = True,
+            disableTextFollowUps: bool = True,
+            webpageUrls: Optional[List[str]] = None,
+            disableArtifact: bool = False,
+            responseModelId: str = "grok-3",
             ) -> GrokResponse:
         """
         Sends a request to the Grok API with a single message and additional parameters.
@@ -437,29 +457,34 @@ class GrokClient:
         Args:
             message (str): The user message to send to the API.
             history_id (Optional[str]): Identifier to specify which chat history to use.
-            new_conversation (Optional[bool]): Whether to use the new chat URL when sending the request to Grok (does not apply to the built-in History class).
-            timeout (int): Timeout in seconds to wait for a response. Default is 360 or the value set during client creation.
-            temporary (bool): Indicates if the session or request is temporary. Defaults to False.
-            modelName (str): The AI model name for processing the request. Default is "grok-3".
-            images (str / BytesIO / List[str / BytesIO]): Either a path to an image, a base64-encoded image, or BytesIO object (or a list of any of these types) to send. Should not be used with fileAttachments.
-            fileAttachments (Optional[List[Dict[str, str]]]): List of file attachments. Each item is a string fileMetadataId.
-            imageAttachments (Optional[List[Dict[str, str]]]): List of image attachments, similar to fileAttachments.
-            customInstructions (str): Additional instructions or context for the model. Defaults to an empty string.
-            deepsearch_preset (str): Preset for deep search. Defaults to an empty string.
-            disableSearch (bool): Disable the model’s search functionality. Defaults to False.
-            enableImageGeneration (bool): Enable image generation in the response. Defaults to True.
-            enableImageStreaming (bool): Enable streaming of images. Defaults to True.
-            enableSideBySide (bool): Enable side-by-side display of information. Defaults to True.
-            imageGenerationCount (int): Number of images to generate. Defaults to 2.
-            isPreset (bool): Indicates if the message is a preset. Defaults to False.
-            isReasoning (bool): Enable reasoning mode in the model’s response. Defaults to False.
-            returnImageBytes (bool): Return image data as bytes. Defaults to False.
-            returnRawGrokInXaiRequest (bool): Return raw output from the model. Defaults to False.
-            sendFinalMetadata (bool): Send final metadata with the request. Defaults to True.
-            toolOverrides (Optional[Dict[str, Any]]): Dictionary to override tool settings. Defaults to an empty dictionary.
+            new_conversation (Optional[bool]): Whether to use the new chat URL when sending the request to Grok.
+            timeout (Optional[int]): Timeout in seconds to wait for a response.
+            temporary (bool): Indicates if the session or request is temporary.
+            modelName (str): The AI model name for processing the request.
+            images (str / BytesIO / List[str / BytesIO]): Image(s) to send.
+            fileAttachments (Optional[List[str]]): List of file attachments.
+            imageAttachments (Optional[List]): List of image attachments.
+            customInstructions (str): Additional instructions for the model.
+            deepsearch_preset (str): Preset for deep search.
+            disableSearch (bool): Disable the model’s search functionality.
+            enableImageGeneration (bool): Enable image generation in the response.
+            enableImageStreaming (bool): Enable streaming of images.
+            enableSideBySide (bool): Enable side-by-side display.
+            imageGenerationCount (int): Number of images to generate.
+            isPreset (bool): Indicates if the message is a preset.
+            isReasoning (bool): Enable reasoning mode.
+            returnImageBytes (bool): Return image data as bytes.
+            returnRawGrokInXaiRequest (bool): Return raw model output.
+            sendFinalMetadata (bool): Send final metadata with the request.
+            toolOverrides (Optional[Dict[str, Any]]): Dictionary to override tool settings.
+            forceConcise (bool): Whether to force concise responses.
+            disableTextFollowUps (bool): Disable text follow-ups.
+            webpageUrls (Optional[List[str]]): List of webpage URLs.
+            disableArtifact (bool): Disable artifact flag.
+            responseModelId (str): Model ID for the response metadata.
 
-        Return:
-            GrokResponse: The response from the Grok API as an object.
+        Returns:
+            GrokResponse: The response from the Grok API.
         """
 
         if timeout is None:
@@ -473,13 +498,22 @@ class GrokClient:
 
             base_headers = {
                 "Content-Type": "application/json",
-                "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                               "(KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36"),
+                "User-Agent": (
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                    "(KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 OPR/119.0.0.0"
+                ),
                 "Accept": "*/*",
-                "Accept-Encoding": "gzip, deflate",
-                "Accept-Language": "ru-RU,ru;q=0.9",
+                "Accept-Encoding": "gzip, deflate, br, zstd",
+                "Accept-Language": "ru",
                 "Origin": "https://grok.com",
                 "Referer": "https://grok.com/",
+                "Sec-Fetch-Dest": "empty",
+                "Sec-Fetch-Mode": "cors",
+                "Sec-Fetch-Site": "same-origin",
+                "Sec-CH-UA": '"Chromium";v="134", "Not:A-Brand";v="24", "Opera";v="119"',
+                "Sec-CH-UA-Mobile": "?0",
+                "Sec-CH-UA-Platform": '"Windows"',
+                "Priority": "u=1, i",
             }
 
             headers = base_headers.copy()
@@ -500,23 +534,32 @@ class GrokClient:
                 "modelName": modelName,
                 "message": message_payload,
                 "fileAttachments": fileAttachments if fileAttachments is not None else [],
-                "forceConcise": True,
                 "imageAttachments": imageAttachments if imageAttachments is not None else [],
-                "customInstructions": customInstructions,
-                "deepsearch preset": deepsearch_preset,
                 "disableSearch": disableSearch,
-                "disableTextFollowUps": True,
                 "enableImageGeneration": enableImageGeneration,
-                "enableImageStreaming": enableImageStreaming,
-                "enableSideBySide": enableSideBySide,
-                "imageGenerationCount": imageGenerationCount,
-                "isPreset": isPreset,
-                "isReasoning": isReasoning,
                 "returnImageBytes": returnImageBytes,
                 "returnRawGrokInXaiRequest": returnRawGrokInXaiRequest,
+                "enableImageStreaming": enableImageStreaming,
+                "imageGenerationCount": imageGenerationCount,
+                "forceConcise": forceConcise,
+                "toolOverrides": toolOverrides if toolOverrides is not None else {},
+                "enableSideBySide": enableSideBySide,
                 "sendFinalMetadata": sendFinalMetadata,
-                "toolOverrides": toolOverrides if toolOverrides is not None else {}
+                "isPreset": isPreset,
+                "isReasoning": isReasoning,
+                "disableTextFollowUps": disableTextFollowUps,
+                "customInstructions": customInstructions,
+                "deepsearch preset": deepsearch_preset,
+
+                "webpageUrls": webpageUrls if webpageUrls is not None else [],
+                "disableArtifact": disableArtifact or not self.enable_artifact_files,
+                "responseMetadata": {
+                    "requestModelDetails": {
+                        "modelId": responseModelId
+                    }
+                }
             }
+
             if self.parentResponseId:
                 payload["parentResponseId"] = self.parentResponseId
 
@@ -601,7 +644,7 @@ class GrokClient:
                         elif 'This service is not available in your region' in str_response:
                             return GrokResponse(last_error_data, self.enable_artifact_files)
 
-                        elif 'a padding to disable MSIE and Chrome friendly error page' in str_response:
+                        elif 'a padding to disable MSIE and Chrome friendly error page' in str_response or "Request rejected by anti-bot rules." in str_response:
                             if not self.always_new_conversation:
                                 last_error_data["error"] = "Can not bypass x-statsig-id protection. Try `always_new_conversation = True` to bypass x-statsig-id protection"
                                 return GrokResponse(last_error_data, self.enable_artifact_files)
