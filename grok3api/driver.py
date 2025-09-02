@@ -443,6 +443,19 @@ class WebDriverSingleton:
         finally:
             return statsig_id if statsig_id else self._update_statsig(True)
 
+    def _initiate_answer(self):
+        # news_button = WebDriverWait(self._driver, self.TIMEOUT).until(
+        #     ec.element_to_be_clickable((By.CSS_SELECTOR, "button.inline-flex:has(svg.lucide-newspaper)"))
+        # )
+        # logger.debug("Кнопка новостей найдена")
+        # self._driver.execute_script("arguments[0].click();", news_button)
+        # logger.debug("Кнопка нажата, ждём ответа")
+        textarea = WebDriverWait(self._driver, self.TIMEOUT).until(
+            ec.element_to_be_clickable((By.CSS_SELECTOR, "textarea[aria-label='Задай Grok любой вопрос']"))
+        )
+        textarea.send_keys(random.choice(string.ascii_lowercase))
+        textarea.send_keys(Keys.ENTER)
+
     def _update_statsig(self, restart_session=False) -> Optional[str]:
         if restart_session:
             self.restart_session()
@@ -453,14 +466,9 @@ class WebDriverSingleton:
             self._driver.get(self.BASE_URL)
             patch_fetch_for_statsig(self._driver)
             logger.debug(f"Перешел на {self.BASE_URL}")
-        page_source = self._driver.page_source
+        #page_source = self._driver.page_source
 
-        news_button = WebDriverWait(self._driver, self.TIMEOUT).until(
-            ec.element_to_be_clickable((By.CSS_SELECTOR, "button.inline-flex:has(svg.lucide-newspaper)"))
-        )
-        logger.debug("Кнопка новостей найдена")
-        self._driver.execute_script("arguments[0].click();", news_button)
-        logger.debug("Кнопка нажата, ждём ответа")
+        self._initiate_answer()
 
         try:
             # is_overlay_active = self._driver.execute_script("""
