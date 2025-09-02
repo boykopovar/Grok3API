@@ -444,17 +444,20 @@ class WebDriverSingleton:
             return statsig_id if statsig_id else self._update_statsig(True)
 
     def _initiate_answer(self):
-        # news_button = WebDriverWait(self._driver, self.TIMEOUT).until(
-        #     ec.element_to_be_clickable((By.CSS_SELECTOR, "button.inline-flex:has(svg.lucide-newspaper)"))
-        # )
-        # logger.debug("Кнопка новостей найдена")
-        # self._driver.execute_script("arguments[0].click();", news_button)
-        # logger.debug("Кнопка нажата, ждём ответа")
-        textarea = WebDriverWait(self._driver, self.TIMEOUT).until(
-            ec.element_to_be_clickable((By.CSS_SELECTOR, "textarea[aria-label='Задай Grok любой вопрос']"))
-        )
-        textarea.send_keys(random.choice(string.ascii_lowercase))
-        textarea.send_keys(Keys.ENTER)
+        try:
+            # news_button = WebDriverWait(self._driver, self.TIMEOUT).until(
+            #     ec.element_to_be_clickable((By.CSS_SELECTOR, "button.inline-flex:has(svg.lucide-newspaper)"))
+            # )
+            # logger.debug("Кнопка новостей найдена")
+            # self._driver.execute_script("arguments[0].click();", news_button)
+            # logger.debug("Кнопка нажата, ждём ответа")
+            textarea = WebDriverWait(self._driver, self.TIMEOUT).until(
+                ec.element_to_be_clickable((By.XPATH, "//div[contains(@class, 'relative')]//textarea"))
+            )
+            textarea.send_keys(random.choice(string.ascii_lowercase))
+            textarea.send_keys(Keys.ENTER)
+        except Exception as e:
+            logger.error(f"In _initiate_answer: {e}")
 
     def _update_statsig(self, restart_session=False) -> Optional[str]:
         if restart_session:
@@ -466,27 +469,26 @@ class WebDriverSingleton:
             self._driver.get(self.BASE_URL)
             patch_fetch_for_statsig(self._driver)
             logger.debug(f"Перешел на {self.BASE_URL}")
-        #page_source = self._driver.page_source
 
         self._initiate_answer()
 
         try:
-            # is_overlay_active = self._driver.execute_script("""
-            #     const elements = document.querySelectorAll("p");
-            #     for (const el of elements) {
-            #         if (el.textContent.includes("Making sure you're human")) {
-            #             const style = window.getComputedStyle(el);
-            #             if (style.visibility !== 'hidden' && style.display !== 'none') {
-            #                 return true;
-            #             }
-            #         }
-            #     }
-            #     return false;
-            # """)
+            is_overlay_active = self._driver.execute_script("""
+                const elements = document.querySelectorAll("p");
+                for (const el of elements) {
+                    if (el.textContent.includes("Making sure you're human")) {
+                        const style = window.getComputedStyle(el);
+                        if (style.visibility !== 'hidden' && style.display !== 'none') {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            """)
 
-            # if is_overlay_active:
-            #     logger.debug("Обнаружен overlay с капчей — блокируем процесс.")
-            #     return None
+            if is_overlay_active:
+                logger.debug("Обнаружен overlay с капчей — блокируем процесс.")
+                return None
 
 
             WebDriverWait(self._driver, min(self.TIMEOUT, 20)).until(
