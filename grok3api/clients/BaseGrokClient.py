@@ -53,53 +53,29 @@ class AnonCredential:
 class BaseGrokClient:
     def __init__(
         self,
-        credential: Optional[
-            AnonCredential
-        ] = None,
-        timeout: int = 120,
-        ssl: bool = True,
-        connector_limit: int = 100,
+        credential: Optional[AnonCredential],
+        timeout: int,
+        ssl: bool,
+        connector_limit: int,
     ) -> None:
         self._credential = credential
         self._timeout = timeout
         self._ssl = ssl
         self._connector_limit = connector_limit
 
-        self._connector: Optional[
-            TCPConnector
-        ] = None
+        self._connector: Optional[TCPConnector] = None
 
-        self._session: Optional[
-            ClientSession
-        ] = None
+        self._session: Optional[ClientSession] = None
 
-    async def __aenter__(
-        self,
-    ) -> "BaseGrokClient":
+    async def __aenter__(self) -> "BaseGrokClient":
         await self.open()
         return self
 
-    async def __aexit__(
-        self,
-        exc_type,
-        exc,
-        tb,
-    ) -> None:
+    async def __aexit__(self, exc_type, exc, tb) -> None:
         await self.close()
 
     @property
-    def session(self) -> ClientSession:
-        if self._session is None:
-            raise RuntimeError(
-                "Client session is not opened",
-            )
-
-        return self._session
-
-    @property
-    def credential(
-        self,
-    ) -> Optional[AnonCredential]:
+    def credential(self) -> Optional[AnonCredential]:
         return self._credential
 
     @property
@@ -125,6 +101,8 @@ class BaseGrokClient:
             connector=self._connector,
         )
 
+        await self.create_anonymous_account()
+
     async def close(self) -> None:
         if self._session is not None:
             await self._session.close()
@@ -134,17 +112,15 @@ class BaseGrokClient:
             await self._connector.close()
             self._connector = None
 
-    async def _ensure_session(
-        self,
-    ) -> None:
-        if not self.is_open:
-            await self.open()
+    def _ensure_session(self) -> None:
+        assert self._session is not None
+
+    def _ensure_credentials(self):
+        assert self._credential is not None
 
     @staticmethod
-    def build_headers(
-        extra: Optional[
-            Dict[str, str]
-        ] = None,
+    def _build_headers(
+            extra: Optional[Dict[str, str]] = None
     ) -> Dict[str, str]:
         if extra:
             headers = (
@@ -158,9 +134,7 @@ class BaseGrokClient:
         return _DEFAULT_ANON_HEADERS.copy()
 
     @staticmethod
-    def grpc_unframe(
-        raw: bytes,
-    ) -> List[bytes]:
+    def _grpc_unframe(raw: bytes) -> List[bytes]:
         frames = []
 
         pos = 0
@@ -181,20 +155,18 @@ class BaseGrokClient:
 
         return frames
 
-    async def grpc_unary(
+    async def _grpc_unary(
         self,
         method: str,
         payload: bytes,
-        headers: Optional[
-            Dict[str, str]
-        ] = None,
+        headers: Optional[Dict[str, str]] = None
     ) -> bytes:
-        await self._ensure_session()
+        self._ensure_session()
 
-        async with self.session.post(
+        async with self._session.post(
             BASE_URL + method,
             data=grpc_frame(payload),
-            headers=self.build_headers(
+            headers=self._build_headers(
                 headers,
             ),
         ) as response:
@@ -223,7 +195,7 @@ class BaseGrokClient:
                     ),
                 )
 
-            return self.grpc_unframe(
+            return self._grpc_unframe(
                 raw,
             )[0]
 
@@ -238,7 +210,7 @@ class BaseGrokClient:
             )
         )
 
-        payload = await self.grpc_unary(
+        payload = await self._grpc_unary(
             GRPC_CREATE_ANON_USER,
             pb_bytes(1, public_key),
         )
@@ -247,7 +219,7 @@ class BaseGrokClient:
             payload,
         )[1][0].decode()
 
-        payload = await self.grpc_unary(
+        payload = await self._grpc_unary(
             GRPC_CREATE_ANON_CHALLENGE,
             pb_str(1, anon_user_id),
         )
