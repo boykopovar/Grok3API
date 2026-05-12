@@ -12,11 +12,9 @@ from grok3api.types import (
     TokenChunk,
 )
 from grok3api.types.exceptions import GrokStreamError
-from grok3api.types.exceptions.handle import raise_for_rest, raise_for_grpc
-from grok3api.types.request import ChatRequest
-from grok3api.utils.constants import BASE_URL, GRPC_CHAT
-from grok3api.utils.parse_response import parse_chunk
-from grok3api.utils.protobuf import grpc_frame
+from grok3api.types.request import ChatRequest, AddResponseRequest
+from grok3api.utils.constants import GRPC_CHAT, GRPC_ADD_RESPONSE
+
 
 
 class GrokClient(BaseGrokClient):
@@ -38,90 +36,69 @@ class GrokClient(BaseGrokClient):
             self,
             request: ChatRequest,
             skip_thinking: bool = True,
-            chunks_white_list: Optional[Tuple[Type[ResponseChunk], ...]] = (TokenChunk, )
+            chunks_white_list: Optional[Tuple[Type[ResponseChunk], ...]] = (TokenChunk,),
     ) -> AsyncIterator[ResponseChunk]:
-        self._ensure_session()
-        self._ensure_credentials()
+        async for chunk in self._stream(GRPC_CHAT, request.encode(), skip_thinking, chunks_white_list):
+            yield chunk
 
-        async with self._session.post(
-                BASE_URL + GRPC_CHAT,
-                data=grpc_frame(request.encode()),
-                headers=self._build_headers(
-                    self._credential.headers,
-                ),
-        ) as response:
-            if response.status != 200:
-                await raise_for_rest(response)
-
-            buffer = bytearray()
-
-            async for chunk in response.content.iter_any():
-                buffer.extend(chunk)
-
-                while True:
-                    if len(buffer) < 5:
-                        break
-
-                    frame_length = int.from_bytes(buffer[1:5], "big")
-                    total = 5 + frame_length
-
-                    if len(buffer) < total:
-                        break
-
-                    frame_body = bytes(buffer[5:total])
-                    del buffer[:total]
-
-                    for parsed_chunk in parse_chunk(frame_body):
-                        if (
-                                skip_thinking and isinstance(parsed_chunk, TokenChunk) and
-                                parsed_chunk.is_thinking
-                        ):
-                            continue
-
-                        if chunks_white_list and not isinstance(parsed_chunk, chunks_white_list):
-                            continue
-
-                        yield parsed_chunk
-
-            raise_for_grpc(response)
+    async def add_response_stream(
+            self,
+            request: AddResponseRequest,
+            skip_thinking: bool = True,
+            chunks_white_list: Optional[Tuple[Type[ResponseChunk], ...]] = (TokenChunk,),
+    ) -> AsyncIterator[ResponseChunk]:
+        async for chunk in self._stream(GRPC_ADD_RESPONSE, request.encode(), skip_thinking, chunks_white_list):
+            yield chunk
 
     async def ask(
-        self,
-        request: ChatRequest,
-        skip_thinking: bool = False,
-        chunks_white_list: Optional[Tuple[Type[ResponseChunk], ...]] = None,
-        raise_for_stream_errors: bool = False
+            self,
+            request: ChatRequest,
+            skip_thinking: bool = False,
+            chunks_white_list: Optional[Tuple[Type[ResponseChunk], ...]] = None,
+            raise_for_stream_errors: bool = False,
     ) -> AskResponse:
-        tokens = []
-        result = AskResponse(text="")
+        return await _collect(
+            self.ask_stream(request, skip_thinking, chunks_white_list),
+            raise_for_stream_errors,
+        )
 
-        async for chunk in self.ask_stream(
-            request=request,
-            skip_thinking=skip_thinking,
-            chunks_white_list=chunks_white_list
-        ):
-            if isinstance(chunk, TokenChunk) and chunk.is_final and chunk.token:
-                tokens.append(chunk.token)
+    async def add_response(
+            self,
+            request: AddResponseRequest,
+            skip_thinking: bool = False,
+            chunks_white_list: Optional[Tuple[Type[ResponseChunk], ...]] = None,
+            raise_for_stream_errors: bool = False,
+    ) -> AskResponse:
+        return await _collect(
+            self.add_response_stream(request, skip_thinking, chunks_white_list),
+            raise_for_stream_errors,
+        )
 
-            elif isinstance(chunk, ModelResponseChunk):
-                result.model_response = chunk.model_response
+async def _collect(
+        stream: AsyncIterator[ResponseChunk],
+        raise_for_stream_errors: bool,
+) -> AskResponse:
+    tokens = []
+    result = AskResponse(text="")
 
-            elif isinstance(chunk, FinalMetadataChunk):
-                result.final_metadata = chunk.final_metadata
+    async for chunk in stream:
+        if isinstance(chunk, TokenChunk) and chunk.is_final and chunk.token:
+            tokens.append(chunk.token)
+        elif isinstance(chunk, ModelResponseChunk):
+            result.model_response = chunk.model_response
+        elif isinstance(chunk, FinalMetadataChunk):
+            result.final_metadata = chunk.final_metadata
+        elif isinstance(chunk, SurveyChunk):
+            result.survey = chunk.survey
+        elif isinstance(chunk, ConversationChunk):
+            result.conversation = chunk.conversation
+        elif isinstance(chunk, TitleChunk):
+            result.title = chunk.new_title
 
-            elif isinstance(chunk, SurveyChunk):
-                result.survey = chunk.survey
+    result.text = "".join(tokens)
+    if raise_for_stream_errors:
+        stream_errors = result.model_response.stream_errors
+        if stream_errors:
+            raise GrokStreamError(stream_errors[0])
 
-            elif isinstance(chunk, ConversationChunk):
-                result.conversation = chunk.conversation
-
-            elif isinstance(chunk, TitleChunk):
-                result.title = chunk.new_title
-
-        result.text = "".join(tokens)
-        if raise_for_stream_errors:
-            stream_errors = result.model_response.stream_errors
-            if stream_errors:
-                raise GrokStreamError(stream_errors[0])
-
-        return result
+    return result
