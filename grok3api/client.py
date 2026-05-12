@@ -11,6 +11,7 @@ from grok3api.types import (
     TitleChunk,
     TokenChunk,
 )
+from grok3api.types.exceptions import GrokStreamError
 from grok3api.types.exceptions.handle import raise_for_rest, raise_for_grpc
 from grok3api.types.request import ChatRequest
 from grok3api.utils.constants import BASE_URL, GRPC_CHAT
@@ -88,7 +89,8 @@ class GrokClient(BaseGrokClient):
         self,
         request: ChatRequest,
         skip_thinking: bool = False,
-        chunks_white_list: Optional[Tuple[Type[ResponseChunk], ...]] = None
+        chunks_white_list: Optional[Tuple[Type[ResponseChunk], ...]] = None,
+        raise_for_stream_errors: bool = False
     ) -> AskResponse:
         tokens = []
         result = AskResponse(text="")
@@ -117,4 +119,9 @@ class GrokClient(BaseGrokClient):
                 result.title = chunk.new_title
 
         result.text = "".join(tokens)
+        if raise_for_stream_errors:
+            stream_errors = result.model_response.stream_errors
+            if stream_errors:
+                raise GrokStreamError(stream_errors[0])
+
         return result

@@ -6,11 +6,22 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 from typing_extensions import Annotated
 
+
 from grok3api.types.pb_meta import ProtoField, WireType
 from grok3api.utils.pb_serializer import decode_message
 
+class _GrokResponseModel(BaseModel):
+    def __str__(self) -> str:
+        return self.model_dump_json(
+            indent=2,
+            exclude_none=True,
+        )
 
-class _PbModel(BaseModel):
+    def __repr__(self) -> str:
+        return self.__str__()
+
+
+class _PbModel(_GrokResponseModel):
     @classmethod
     def from_pb(cls, buf: bytes) -> "_PbModel":
         return decode_message(cls, buf)
@@ -498,7 +509,7 @@ class Conversation(_PbModel):
     voice_chat_session_metadata: Annotated[str, ProtoField(tag=18, wire=WireType.STRING)] = ""
 
 
-class AskResponse(BaseModel):
+class AskResponse(_GrokResponseModel):
     text: str
     model_response: Optional[ModelResponse] = None
     final_metadata: Optional[FinalMetadata] = None

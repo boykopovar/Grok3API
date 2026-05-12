@@ -15,6 +15,7 @@ async def main() -> None:
 
             print("\nGrok: ", end="")
             async for chunk in client.ask_stream(request):
+                print(chunk)
                 print(chunk.token, end="", flush=True)
 
 

@@ -2,12 +2,11 @@ import asyncio
 
 from grok3api.client import GrokClient
 from grok3api.types.request import ChatRequest
-from grok3api.types import TokenChunk
 
 
 async def ask_grok(client: GrokClient, request: ChatRequest):
-    async for chunk in client.ask_stream(request):  # type: TokenChunk
-        print(chunk.token, end="", flush=True)
+    response = await client.ask(request, raise_for_stream_errors=True)
+    print(response)
 
 
 async def main() -> None:

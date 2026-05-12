@@ -1,4 +1,8 @@
+from typing import List
+
 from multidict import CIMultiDictProxy
+
+from grok3api.types.response import StreamError
 
 
 class GrokApiError(Exception):
@@ -19,3 +23,17 @@ class GrokRateLimitError(GrokGrpcError):
 
 class GrokUnderHeavyUsageError(GrokRateLimitError):
     message: str
+
+
+class GrokStreamError(GrokApiError):
+    def __init__(self, error: StreamError):
+        self.error = error
+        data = error.model_dump()
+
+        for key, value in data.items():
+            setattr(self, key, value)
+
+        super().__init__(error.message)
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self.error!r})"
