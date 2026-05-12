@@ -1,5 +1,5 @@
 import struct
-from typing import Optional
+from typing import Optional, Dict, List, Tuple
 
 
 def _varint(n: int) -> bytes:
@@ -12,7 +12,7 @@ def _varint(n: int) -> bytes:
             return bytes(out)
 
 
-def _read_varint(buf: bytes, pos: int) -> tuple[int, int]:
+def _read_varint(buf: bytes, pos: int) -> Tuple[int, int]:
     result = 0
     shift = 0
     while pos < len(buf):
@@ -27,8 +27,8 @@ def _read_varint(buf: bytes, pos: int) -> tuple[int, int]:
 def grpc_frame(pb: bytes) -> bytes:
     return b"\x00" + struct.pack(">I", len(pb)) + pb
 
-def pb_parse(buf: bytes) -> dict[int, list]:
-    out: dict[int, list] = {}
+def pb_parse(buf: bytes) -> Dict[int, List]:
+    out: Dict[int, List] = {}
     pos = 0
     while pos < len(buf):
         tag, pos = _read_varint(buf, pos)

@@ -7,6 +7,7 @@ from typing import Dict, Optional, Union, List
 from aiohttp import ClientSession, ClientTimeout, TCPConnector
 from coincurve import PrivateKey
 
+from grok3api.types.exceptions.handle import raise_for_rest, raise_for_grpc
 from grok3api.utils.constants import (
     APP_VERSION,
     BASE_URL,
@@ -171,33 +172,12 @@ class BaseGrokClient:
             ),
         ) as response:
             raw = await response.read()
-
-            grpc_status = response.headers.get(
-                "grpc-status",
-                "0",
-            )
-
-            if grpc_status != "0":
-                raise RuntimeError(
-                    "gRPC {}: {}".format(
-                        grpc_status,
-                        response.headers.get(
-                            "grpc-message",
-                            "?",
-                        ),
-                    ),
-                )
+            raise_for_grpc(response)
 
             if response.status != 200:
-                raise RuntimeError(
-                    "HTTP {}".format(
-                        response.status,
-                    ),
-                )
+                await raise_for_rest(response)
 
-            return self._grpc_unframe(
-                raw,
-            )[0]
+            return self._grpc_unframe(raw)[0]
 
     async def create_anonymous_account(
         self,

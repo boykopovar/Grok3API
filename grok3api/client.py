@@ -11,6 +11,7 @@ from grok3api.types import (
     TitleChunk,
     TokenChunk,
 )
+from grok3api.types.exceptions.handle import raise_for_rest, raise_for_grpc
 from grok3api.types.request import ChatRequest
 from grok3api.utils.constants import BASE_URL, GRPC_CHAT
 from grok3api.utils.parse_response import parse_chunk
@@ -49,9 +50,7 @@ class GrokClient(BaseGrokClient):
                 ),
         ) as response:
             if response.status != 200:
-                body = await response.read()
-
-                raise RuntimeError(f"HTTP {response.status}: {body}")
+                await raise_for_rest(response)
 
             buffer = bytearray()
 
@@ -69,7 +68,6 @@ class GrokClient(BaseGrokClient):
                         break
 
                     frame_body = bytes(buffer[5:total])
-
                     del buffer[:total]
 
                     for parsed_chunk in parse_chunk(frame_body):
@@ -84,11 +82,7 @@ class GrokClient(BaseGrokClient):
 
                         yield parsed_chunk
 
-            grpc_status = response.headers.get("grpc-status", "0")
-            if grpc_status != "0":
-                raise RuntimeError(
-                    f"gRPC {grpc_status}: {response.headers.get('grpc-message', '?')}"
-                )
+            raise_for_grpc(response)
 
     async def ask(
         self,
