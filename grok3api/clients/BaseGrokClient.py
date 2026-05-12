@@ -13,9 +13,17 @@ from grok3api.utils.constants import (
     GRPC_CREATE_ANON_CHALLENGE,
     GRPC_CREATE_ANON_USER,
 )
-from grok3api.utils.protobuf import grpc_frame, pb_bytes, pb_parse, pb_str
+from grok3api.utils.protobuf import (
+    grpc_frame,
+    pb_bytes,
+    pb_parse,
+    pb_str,
+)
 
-_DEFAULT_ANON_HEADERS: Dict[str, Union[str, Dict[str, str]]] = {
+_DEFAULT_ANON_HEADERS: Dict[
+    str,
+    Union[str, Dict[str, str]],
+] = {
     "Content-Type": "application/grpc+proto",
     "Accept": "application/grpc+proto",
     "TE": "trailers",
@@ -25,6 +33,7 @@ _DEFAULT_ANON_HEADERS: Dict[str, Union[str, Dict[str, str]]] = {
         f"(Android; okhttp/4.12.0)"
     ),
 }
+
 
 @dataclass(frozen=True)
 class AnonCredential:
@@ -44,7 +53,9 @@ class AnonCredential:
 class BaseGrokClient:
     def __init__(
         self,
-        credential: Optional[AnonCredential] = None,
+        credential: Optional[
+            AnonCredential
+        ] = None,
         timeout: int = 120,
         ssl: bool = True,
         connector_limit: int = 100,
@@ -54,15 +65,65 @@ class BaseGrokClient:
         self._ssl = ssl
         self._connector_limit = connector_limit
 
-        self._connector: Optional[TCPConnector] = None
-        self._session: Optional[ClientSession] = None
+        self._connector: Optional[
+            TCPConnector
+        ] = None
 
-    async def __aenter__(self) -> "BaseGrokClient":
-        await self._ensure_session()
+        self._session: Optional[
+            ClientSession
+        ] = None
+
+    async def __aenter__(
+        self,
+    ) -> "BaseGrokClient":
+        await self.open()
         return self
 
-    async def __aexit__(self, exc_type, exc, tb) -> None:
+    async def __aexit__(
+        self,
+        exc_type,
+        exc,
+        tb,
+    ) -> None:
         await self.close()
+
+    @property
+    def session(self) -> ClientSession:
+        if self._session is None:
+            raise RuntimeError(
+                "Client session is not opened",
+            )
+
+        return self._session
+
+    @property
+    def credential(
+        self,
+    ) -> Optional[AnonCredential]:
+        return self._credential
+
+    @property
+    def is_open(self) -> bool:
+        return (
+            self._session is not None
+            and not self._session.closed
+        )
+
+    async def open(self) -> None:
+        if self.is_open:
+            return
+
+        self._connector = TCPConnector(
+            ssl=self._ssl,
+            limit=self._connector_limit,
+        )
+
+        self._session = ClientSession(
+            timeout=ClientTimeout(
+                total=self._timeout,
+            ),
+            connector=self._connector,
+        )
 
     async def close(self) -> None:
         if self._session is not None:
@@ -73,43 +134,48 @@ class BaseGrokClient:
             await self._connector.close()
             self._connector = None
 
-    async def _ensure_session(self) -> None:
-        if self._session is not None:
-            return
-
-        self._connector = TCPConnector(
-            ssl=self._ssl,
-            limit=self._connector_limit,
-        )
-
-        self._session = ClientSession(
-            timeout=ClientTimeout(total=self._timeout),
-            connector=self._connector,
-        )
+    async def _ensure_session(
+        self,
+    ) -> None:
+        if not self.is_open:
+            await self.open()
 
     @staticmethod
     def build_headers(
-        extra: Optional[Dict[str, str]] = None,
+        extra: Optional[
+            Dict[str, str]
+        ] = None,
     ) -> Dict[str, str]:
         if extra:
-            headers = _DEFAULT_ANON_HEADERS.copy()
+            headers = (
+                _DEFAULT_ANON_HEADERS.copy()
+            )
+
             headers.update(extra)
+
             return headers
 
-        return _DEFAULT_ANON_HEADERS
+        return _DEFAULT_ANON_HEADERS.copy()
 
     @staticmethod
-    def grpc_unframe(raw: bytes) -> List[bytes]:
+    def grpc_unframe(
+        raw: bytes,
+    ) -> List[bytes]:
         frames = []
 
         pos = 0
 
         while pos + 5 <= len(raw):
-            length = struct.unpack(">I", raw[pos + 1:pos + 5])[0]
+            length = struct.unpack(
+                ">I",
+                raw[pos + 1:pos + 5],
+            )[0]
 
             pos += 5
 
-            frames.append(raw[pos:pos + length])
+            frames.append(
+                raw[pos:pos + length],
+            )
 
             pos += length
 
@@ -119,16 +185,18 @@ class BaseGrokClient:
         self,
         method: str,
         payload: bytes,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[
+            Dict[str, str]
+        ] = None,
     ) -> bytes:
         await self._ensure_session()
 
-        assert self._session is not None
-
-        async with self._session.post(
+        async with self.session.post(
             BASE_URL + method,
             data=grpc_frame(payload),
-            headers=self.build_headers(headers),
+            headers=self.build_headers(
+                headers,
+            ),
         ) as response:
             raw = await response.read()
 
@@ -150,18 +218,24 @@ class BaseGrokClient:
 
             if response.status != 200:
                 raise RuntimeError(
-                    "HTTP {}".format(response.status),
+                    "HTTP {}".format(
+                        response.status,
+                    ),
                 )
 
-            return self.grpc_unframe(raw)[0]
+            return self.grpc_unframe(
+                raw,
+            )[0]
 
     async def create_anonymous_account(
         self,
     ) -> AnonCredential:
         private_key = PrivateKey()
 
-        public_key = private_key.public_key.format(
-            compressed=True,
+        public_key = (
+            private_key.public_key.format(
+                compressed=True,
+            )
         )
 
         payload = await self.grpc_unary(
@@ -169,21 +243,29 @@ class BaseGrokClient:
             pb_bytes(1, public_key),
         )
 
-        anon_user_id = pb_parse(payload)[1][0].decode()
+        anon_user_id = pb_parse(
+            payload,
+        )[1][0].decode()
 
         payload = await self.grpc_unary(
             GRPC_CREATE_ANON_CHALLENGE,
             pb_str(1, anon_user_id),
         )
 
-        challenge = pb_parse(payload)[1][0]
+        challenge = pb_parse(
+            payload,
+        )[1][0]
 
-        digest = hashlib.sha256(challenge).digest()
+        digest = hashlib.sha256(
+            challenge,
+        ).digest()
 
-        signature = private_key.sign_recoverable(
-            digest,
-            hasher=None,
-        )[:64]
+        signature = (
+            private_key.sign_recoverable(
+                digest,
+                hasher=None,
+            )[:64]
+        )
 
         credential = AnonCredential(
             anon_user_id=anon_user_id,
@@ -199,6 +281,8 @@ class BaseGrokClient:
 
         return credential
 
-    async def ensure_authorized(self) -> None:
+    async def ensure_authorized(
+        self,
+    ) -> None:
         if self._credential is None:
             await self.create_anonymous_account()
