@@ -1,10 +1,11 @@
-from typing import Type, Optional
+from typing import Type
 
 from aiohttp import ClientResponse
 
 from grok3api.types.exceptions import *
 
 _UNAVAILABLE_REGION_TEXT = 'This service is not available in your region.'
+_TOO_MANY_REQUESTS_TEXT = 'too many requests'
 
 async def raise_for_rest(response: ClientResponse) -> None:
     if response.status != 200:
@@ -41,6 +42,8 @@ def raise_for_grpc(response: ClientResponse) -> None:
         error_type = GrokRateLimitError
         if 'under heavy usage' in msg_lower:
             error_type = GrokUnderHeavyUsageError
+        elif _TOO_MANY_REQUESTS_TEXT in msg_lower:
+            error_type = GrokTooManyRequestsError
 
     error = error_type(error_msg)
     error.status_code = grpc_status

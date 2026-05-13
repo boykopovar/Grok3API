@@ -1,12 +1,11 @@
 import asyncio
 
 from grok3api.client import GrokClient
-from grok3api.types.exceptions import GrokUnderHeavyUsageError
 from grok3api.types.request import ChatRequest
 
 
 async def ask_grok(client: GrokClient, request: ChatRequest):
-    response = await client.ask(
+    response = await client.new_ask(
         request,
         raise_for_stream_errors=True,
     )

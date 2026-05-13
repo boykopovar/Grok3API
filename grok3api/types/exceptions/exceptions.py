@@ -1,5 +1,3 @@
-from typing import List
-
 from multidict import CIMultiDictProxy
 
 from grok3api.types.response import StreamError
@@ -20,6 +18,9 @@ class GrokGrpcError(GrokApiError):
 
 class GrokRateLimitError(GrokGrpcError):
     pass
+
+class GrokTooManyRequestsError(GrokRateLimitError):
+    message: str
 
 class GrokUnderHeavyUsageError(GrokRateLimitError):
     message: str

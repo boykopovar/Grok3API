@@ -14,7 +14,7 @@ async def stream_with_retry(
     while True:
         try:
             if isinstance(request, ChatRequest):
-                return await client.ask(request, skip_thinking=True)
+                return await client.new_ask(request, skip_thinking=True)
             return await client.add_response(request, skip_thinking=True)
         except GrokUnderHeavyUsageError:
             print("Heavy usage, retrying...")
@@ -43,7 +43,6 @@ async def main() -> None:
                 conversation_id = result.conversation.conversation_id
 
             parent_response_id = result.model_response.response_id
-
             print(f"\nGrok: {result.text}")
 
 

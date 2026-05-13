@@ -32,7 +32,7 @@ class GrokClient(BaseGrokClient):
             connector_limit=connector_limit,
         )
 
-    async def ask_stream(
+    async def new_ask_stream(
             self,
             request: ChatRequest,
             skip_thinking: bool = True,
@@ -50,18 +50,6 @@ class GrokClient(BaseGrokClient):
         async for chunk in self._stream(GRPC_ADD_RESPONSE, request.encode(), skip_thinking, chunks_white_list):
             yield chunk
 
-    async def ask(
-            self,
-            request: ChatRequest,
-            skip_thinking: bool = False,
-            chunks_white_list: Optional[Tuple[Type[ResponseChunk], ...]] = None,
-            raise_for_stream_errors: bool = False,
-    ) -> AskResponse:
-        return await _collect(
-            self.ask_stream(request, skip_thinking, chunks_white_list),
-            raise_for_stream_errors,
-        )
-
     async def add_response(
             self,
             request: AddResponseRequest,
@@ -73,6 +61,20 @@ class GrokClient(BaseGrokClient):
             self.add_response_stream(request, skip_thinking, chunks_white_list),
             raise_for_stream_errors,
         )
+
+
+    async def new_ask(
+            self,
+            request: ChatRequest,
+            skip_thinking: bool = False,
+            chunks_white_list: Optional[Tuple[Type[ResponseChunk], ...]] = None,
+            raise_for_stream_errors: bool = False,
+    ) -> AskResponse:
+        return await _collect(
+            self.new_ask_stream(request, skip_thinking, chunks_white_list),
+            raise_for_stream_errors,
+        )
+
 
 async def _collect(
         stream: AsyncIterator[ResponseChunk],
