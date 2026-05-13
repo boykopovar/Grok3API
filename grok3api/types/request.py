@@ -120,3 +120,66 @@ class ChatRequest(BaseModel):
 
     def encode(self) -> bytes:
         return encode_message(self)
+
+
+class AddResponseRequest(BaseModel):
+    conversation_id: Annotated[str, ProtoField(tag=1, wire=WireType.STRING)]
+    message: Annotated[str, ProtoField(tag=2, wire=WireType.STRING)]
+    model_name: Annotated[Optional[str], ProtoField(tag=3, wire=WireType.STRING)] = None
+    parent_response_id: Annotated[Optional[str], ProtoField(tag=5, wire=WireType.STRING)] = None
+    parent_quoted_text: Annotated[Optional[str], ProtoField(tag=6, wire=WireType.STRING)] = None
+    disable_search: Annotated[bool, ProtoField(tag=8, wire=WireType.BOOL)] = False
+    enable_image_generation: Annotated[bool, ProtoField(tag=9, wire=WireType.BOOL)] = True
+    image_attachments: Annotated[List[str], ProtoField(tag=16, wire=WireType.REPEATED_STRING)] = Field(default_factory=list)
+    return_image_bytes: Annotated[bool, ProtoField(tag=17, wire=WireType.BOOL)] = False
+    return_raw_grok_in_xai_request: Annotated[bool, ProtoField(tag=19, wire=WireType.BOOL)] = False
+    file_attachments: Annotated[List[str], ProtoField(tag=20, wire=WireType.REPEATED_STRING)] = Field(default_factory=list)
+    enable_image_streaming: Annotated[bool, ProtoField(tag=21, wire=WireType.BOOL)] = True
+    image_generation_count: Annotated[Optional[int], ProtoField(tag=22, wire=WireType.INT32)] = 2
+    force_concise: Annotated[bool, ProtoField(tag=23, wire=WireType.BOOL)] = False
+    tool_overrides: Annotated[Optional[ToolOverrides], ProtoField(tag=24, wire=WireType.MESSAGE, cls=ToolOverrides)] = None
+    enable_side_by_side: Annotated[bool, ProtoField(tag=25, wire=WireType.BOOL)] = True
+    send_final_metadata: Annotated[bool, ProtoField(tag=27, wire=WireType.BOOL)] = True
+    custom_instructions: Annotated[Optional[str], ProtoField(tag=28, wire=WireType.STRING)] = None
+    custom_personality: Annotated[Optional[str], ProtoField(tag=29, wire=WireType.STRING)] = None
+    deepsearch_preset: Annotated[Optional[str], ProtoField(tag=30, wire=WireType.STRING)] = None
+    image_edit_uri: Annotated[Optional[str], ProtoField(tag=31, wire=WireType.STRING)] = None
+    is_reasoning: Annotated[bool, ProtoField(tag=32, wire=WireType.BOOL)] = False
+    system_prompt_name: Annotated[Optional[str], ProtoField(tag=33, wire=WireType.STRING)] = None
+    webpage_urls: Annotated[List[str], ProtoField(tag=34, wire=WireType.REPEATED_STRING)] = Field(default_factory=list)
+    image_edit_uris: Annotated[List[str], ProtoField(tag=36, wire=WireType.REPEATED_STRING)] = Field(default_factory=list)
+    disable_text_follow_ups: Annotated[bool, ProtoField(tag=37, wire=WireType.BOOL)] = False
+    disable_artifact: Annotated[bool, ProtoField(tag=38, wire=WireType.BOOL)] = False
+    disable_artifact_diff: Annotated[bool, ProtoField(tag=40, wire=WireType.BOOL)] = False
+    do_force_trigger_artifact: Annotated[bool, ProtoField(tag=41, wire=WireType.BOOL)] = False
+    is_from_grok_files: Annotated[bool, ProtoField(tag=42, wire=WireType.BOOL)] = False
+    resume_response_id: Annotated[Optional[str], ProtoField(tag=43, wire=WireType.STRING)] = None
+    selected_file_text_content: Annotated[Optional[str], ProtoField(tag=44, wire=WireType.STRING)] = None
+    selected_file_text_content_start_position: Annotated[Optional[int], ProtoField(tag=45, wire=WireType.INT32)] = None
+    selected_file_text_content_end_position: Annotated[Optional[int], ProtoField(tag=46, wire=WireType.INT32)] = None
+    disable_memory: Annotated[bool, ProtoField(tag=47, wire=WireType.BOOL)] = False
+    force_side_by_side: Annotated[bool, ProtoField(tag=48, wire=WireType.BOOL)] = False
+    thread_parent_id: Annotated[Optional[str], ProtoField(tag=49, wire=WireType.STRING)] = None
+    models_user_can_use: Annotated[List[str], ProtoField(tag=51, wire=WireType.REPEATED_STRING)] = Field(default_factory=list)
+    skip_response_cache: Annotated[Optional[bool], ProtoField(tag=52, wire=WireType.OPT_BOOL)] = None
+    is_async_chat: Annotated[bool, ProtoField(tag=53, wire=WireType.BOOL)] = False
+    skip_cancel_current_inflight_requests: Annotated[bool, ProtoField(tag=54, wire=WireType.BOOL)] = False
+    enable_nsfw: Annotated[Optional[bool], ProtoField(tag=55, wire=WireType.OPT_BOOL)] = None
+    is_kids_mode: Annotated[Optional[bool], ProtoField(tag=56, wire=WireType.OPT_BOOL)] = None
+    is_regen_request: Annotated[bool, ProtoField(tag=58, wire=WireType.BOOL)] = False
+    companion_id: Annotated[Optional[str], ProtoField(tag=59, wire=WireType.STRING)] = None
+    disable_self_harm_short_circuit: Annotated[bool, ProtoField(tag=61, wire=WireType.BOOL)] = False
+    collection_ids: Annotated[List[str], ProtoField(tag=62, wire=WireType.REPEATED_STRING)] = Field(default_factory=list)
+    connector_ids: Annotated[List[str], ProtoField(tag=63, wire=WireType.REPEATED_STRING)] = Field(default_factory=list)
+    search_all_connectors: Annotated[Optional[bool], ProtoField(tag=64, wire=WireType.OPT_BOOL)] = None
+    device_env_info: Annotated[DeviceEnvInfo, ProtoField(tag=65, wire=WireType.MESSAGE, cls=DeviceEnvInfo)] = Field(default_factory=DeviceEnvInfo)
+    model_override_key: Annotated[Optional[str], ProtoField(tag=66, wire=WireType.STRING)] = None
+    browser_geo_location: Annotated[Optional[GeoLocation], ProtoField(tag=67, wire=WireType.MESSAGE, cls=GeoLocation)] = None
+    disable_personalization: Annotated[Optional[bool], ProtoField(tag=69, wire=WireType.OPT_BOOL)] = None
+    imagine_project_id: Annotated[Optional[str], ProtoField(tag=71, wire=WireType.STRING)] = None
+    mode_id: Annotated[Optional[str], ProtoField(tag=72, wire=WireType.STRING)] = "fast"
+    imagine_canvas_context: Annotated[Optional[ImagineCanvasContext], ProtoField(tag=75, wire=WireType.MESSAGE, cls=ImagineCanvasContext)] = None
+    disabled_connector_ids: Annotated[List[str], ProtoField(tag=76, wire=WireType.REPEATED_STRING)] = Field(default_factory=list)
+
+    def encode(self) -> bytes:
+        return encode_message(self)

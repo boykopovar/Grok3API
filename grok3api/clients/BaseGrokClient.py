@@ -2,11 +2,12 @@ import base64
 import hashlib
 import struct
 from dataclasses import dataclass
-from typing import Dict, Optional, Union, List
+from typing import Dict, Optional, Union, List, Tuple, Type, AsyncIterator
 
 from aiohttp import ClientSession, ClientTimeout, TCPConnector
 from coincurve import PrivateKey
 
+from grok3api.types import ResponseChunk, TokenChunk
 from grok3api.types.exceptions.handle import raise_for_rest, raise_for_grpc
 from grok3api.utils.constants import (
     APP_VERSION,
@@ -14,6 +15,7 @@ from grok3api.utils.constants import (
     GRPC_CREATE_ANON_CHALLENGE,
     GRPC_CREATE_ANON_USER,
 )
+from grok3api.utils.parse_response import parse_chunk
 from grok3api.utils.protobuf import (
     grpc_frame,
     pb_bytes,
@@ -178,6 +180,57 @@ class BaseGrokClient:
                 await raise_for_rest(response)
 
             return self._grpc_unframe(raw)[0]
+
+    async def _stream(
+            self,
+            endpoint: str,
+            payload: bytes,
+            skip_thinking: bool,
+            chunks_white_list: Optional[Tuple[Type[ResponseChunk], ...]],
+    ) -> AsyncIterator[ResponseChunk]:
+        self._ensure_session()
+        self._ensure_credentials()
+
+        async with self._session.post(
+                BASE_URL + endpoint,
+                data=grpc_frame(payload),
+                headers=self._build_headers(self._credential.headers),
+        ) as response:
+            if response.status != 200:
+                await raise_for_rest(response)
+
+            buffer = bytearray()
+
+            async for chunk in response.content.iter_any():
+                buffer.extend(chunk)
+
+                while True:
+                    if len(buffer) < 5:
+                        break
+
+                    frame_length = int.from_bytes(buffer[1:5], "big")
+                    total = 5 + frame_length
+
+                    if len(buffer) < total:
+                        break
+
+                    frame_body = bytes(buffer[5:total])
+                    del buffer[:total]
+
+                    for parsed_chunk in parse_chunk(frame_body):
+                        if (
+                                skip_thinking and isinstance(parsed_chunk, TokenChunk) and
+                                parsed_chunk.is_thinking
+                        ):
+                            continue
+
+                        if chunks_white_list and not isinstance(parsed_chunk, chunks_white_list):
+                            continue
+
+                        yield parsed_chunk
+
+            raise_for_grpc(response)
+
 
     async def create_anonymous_account(
         self,

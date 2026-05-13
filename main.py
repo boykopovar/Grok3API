@@ -1,24 +1,31 @@
 import asyncio
 
 from grok3api.client import GrokClient
+from grok3api.types.exceptions import GrokUnderHeavyUsageError
 from grok3api.types.request import ChatRequest
+from grok3api.types import TokenChunk
 
 
-async def ask_grok(client: GrokClient, request: ChatRequest):
-    response = await client.ask(request, raise_for_stream_errors=True)
-    print(response)
-
-
-async def main() -> None:
+async def main():
     async with GrokClient() as client:
-        request = ChatRequest(
-            message="Даров как сам? Как день прошел?",
-            temporary=False
-        )
-        await asyncio.gather(
-            *[ask_grok(client, request) for _ in range(5)],
-            return_exceptions=True
-        )
+        while True:
+            request = ChatRequest(
+                message=input("\nYou: "),
+                temporary=False
+            )
+            print("\nGrok: ", end="")
+
+            run = True
+            while run:
+                try:
+                    async for chunk in client.new_ask_stream(
+                        request=request,
+                        chunks_white_list=(TokenChunk,)
+                    ):
+                        print(chunk.token, end="", flush=True)
+                        run = False
+                except GrokUnderHeavyUsageError as e:
+                    print(e)
 
 
 if __name__ == "__main__":

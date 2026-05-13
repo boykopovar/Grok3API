@@ -1,3 +1,5 @@
+from grok3api.types import TokenChunk
+
 # Grok3API
 
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue?logo=python\&logoColor=white)
@@ -17,8 +19,8 @@ An asynchronous library for interacting with Grok via the mobile gRPC channel: s
 ## Features
 
 * asynchronous client
-* streaming responses via `ask_stream()`
-* regular requests via `ask()`
+* streaming responses via `new_ask_stream()`
+* regular requests via `new_ask()`
 * protobuf/gRPC framing
 * typed Pydantic models
 * streaming chunk parsing
@@ -44,19 +46,21 @@ import asyncio
 
 from grok3api.client import GrokClient
 from grok3api.types.request import ChatRequest
+from grok3api.types import TokenChunk
 
 
 async def main():
     async with GrokClient() as client:
         while True:
-            request = ChatRequest(
-                message=input("\nYou: "),
-                temporary=False
-            )
-
             print("\nGrok: ", end="")
 
-            async for chunk in client.ask_stream(request):
+            async for chunk in client.new_ask_stream(
+                request=ChatRequest(
+                    message=input("\nYou: "),
+                    temporary=False
+                ),
+                chunks_white_list=(TokenChunk,)
+            ):
                 print(chunk.token, end="", flush=True)
 
 
@@ -75,7 +79,7 @@ from grok3api.types.request import ChatRequest
 
 async def main():
     async with GrokClient() as client:
-        response = await client.ask(
+        response = await client.new_ask(
             ChatRequest(
                 message="Hello",
                 temporary=False
@@ -84,6 +88,38 @@ async def main():
 
         print(response.text)
         print(response.model_response)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+## Continue started conversation
+
+```python
+import asyncio
+
+from grok3api.client import GrokClient
+from grok3api.types.request import ChatRequest, AddResponseRequest
+
+
+async def main():
+    async with GrokClient() as client:
+        first = await client.new_ask(
+            ChatRequest(
+                message="Hello",
+                temporary=False
+            )
+        )
+
+        second = await client.add_response(
+            AddResponseRequest(
+                conversation_id=first.conversation.conversation_id,
+                message="How are you?"
+            )
+        )
+
+        print(second.text)
 
 
 if __name__ == "__main__":
@@ -152,6 +188,8 @@ from grok3api.types.exceptions import (
     GrokRateLimitError,
     GrokUnderHeavyUsageError,
     GrokStreamError,
+    GrokUnavailableRegionError,
+    GrokTooManyRequestsError
 )
 ```
 

@@ -12,11 +12,9 @@ from grok3api.types import (
     TokenChunk,
 )
 from grok3api.types.exceptions import GrokStreamError
-from grok3api.types.exceptions.handle import raise_for_rest, raise_for_grpc
-from grok3api.types.request import ChatRequest
-from grok3api.utils.constants import BASE_URL, GRPC_CHAT
-from grok3api.utils.parse_response import parse_chunk
-from grok3api.utils.protobuf import grpc_frame
+from grok3api.types.request import ChatRequest, AddResponseRequest
+from grok3api.utils.constants import GRPC_CHAT, GRPC_ADD_RESPONSE
+
 
 
 class GrokClient(BaseGrokClient):
@@ -34,94 +32,147 @@ class GrokClient(BaseGrokClient):
             connector_limit=connector_limit,
         )
 
-    async def ask_stream(
+    async def new_ask_stream(
             self,
             request: ChatRequest,
             skip_thinking: bool = True,
-            chunks_white_list: Optional[Tuple[Type[ResponseChunk], ...]] = (TokenChunk, )
+            chunks_white_list: Optional[Tuple[Type[ResponseChunk], ...]] = (TokenChunk, ModelResponseChunk, ConversationChunk),
     ) -> AsyncIterator[ResponseChunk]:
-        self._ensure_session()
-        self._ensure_credentials()
+        """Stream a request for a new conversation and yield parsed response chunks.
 
-        async with self._session.post(
-                BASE_URL + GRPC_CHAT,
-                data=grpc_frame(request.encode()),
-                headers=self._build_headers(
-                    self._credential.headers,
-                ),
-        ) as response:
-            if response.status != 200:
-                await raise_for_rest(response)
+        Sends a fresh chat request to the Grok gRPC chat endpoint and streams parsed
+        response chunks as they are received.
 
-            buffer = bytearray()
+        Args:
+            request: The chat request for the new conversation.
+            skip_thinking: If True, skips TokenChunk objects marked as thinking.
+            chunks_white_list: Optional tuple of ResponseChunk types to yield.
+                If specified, only chunks matching one of the provided types
+                are yielded. If None, all parsed chunks are yielded.
 
-            async for chunk in response.content.iter_any():
-                buffer.extend(chunk)
+        Returns:
+            AsyncIterator[ResponseChunk]: Async iterator yielding parsed response
+            chunks. ResponseChunk is a union of all supported chunk models.
+        """
+        async for chunk in self._stream(GRPC_CHAT, request.encode(), skip_thinking, chunks_white_list):
+            yield chunk
 
-                while True:
-                    if len(buffer) < 5:
-                        break
+    async def add_response_stream(
+            self,
+            request: AddResponseRequest,
+            skip_thinking: bool = True,
+            chunks_white_list: Optional[Tuple[Type[ResponseChunk], ...]] = (TokenChunk, ModelResponseChunk),
+    ) -> AsyncIterator[ResponseChunk]:
+        """Stream a message added to an existing conversation and yield parsed response chunks.
 
-                    frame_length = int.from_bytes(buffer[1:5], "big")
-                    total = 5 + frame_length
+        Sends an add-response request to the Grok gRPC endpoint for an existing
+        conversation, decodes streamed frames, optionally skips thinking tokens, and
+        filters yielded chunks by type.
 
-                    if len(buffer) < total:
-                        break
+        Args:
+            request: The add-response request containing the conversation ID and the
+                next user message.
+            skip_thinking: If True, skips TokenChunk objects marked as thinking.
+            chunks_white_list: Optional tuple of ResponseChunk types to yield.
+                If specified, only chunks matching one of the provided types are
+                yielded. If None, all parsed chunks are yielded.
 
-                    frame_body = bytes(buffer[5:total])
-                    del buffer[:total]
+        Returns:
+            AsyncIterator[ResponseChunk]: An async iterator of parsed response chunks.
+            ResponseChunk is a union of all supported chunk models
+            (for example, TokenChunk, ModelResponseChunk, ConversationChunk).
+        """
+        async for chunk in self._stream(GRPC_ADD_RESPONSE, request.encode(), skip_thinking, chunks_white_list):
+            yield chunk
 
-                    for parsed_chunk in parse_chunk(frame_body):
-                        if (
-                                skip_thinking and isinstance(parsed_chunk, TokenChunk) and
-                                parsed_chunk.is_thinking
-                        ):
-                            continue
-
-                        if chunks_white_list and not isinstance(parsed_chunk, chunks_white_list):
-                            continue
-
-                        yield parsed_chunk
-
-            raise_for_grpc(response)
-
-    async def ask(
-        self,
-        request: ChatRequest,
-        skip_thinking: bool = False,
-        chunks_white_list: Optional[Tuple[Type[ResponseChunk], ...]] = None,
-        raise_for_stream_errors: bool = False
+    async def add_response(
+            self,
+            request: AddResponseRequest,
+            skip_thinking: bool = False,
+            chunks_white_list: Optional[Tuple[Type[ResponseChunk], ...]] = None,
+            raise_for_stream_errors: bool = False,
     ) -> AskResponse:
-        tokens = []
-        result = AskResponse(text="")
+        """Send a message to an existing conversation and collect the full response.
 
-        async for chunk in self.ask_stream(
-            request=request,
-            skip_thinking=skip_thinking,
-            chunks_white_list=chunks_white_list
-        ):
-            if isinstance(chunk, TokenChunk) and chunk.is_final and chunk.token:
-                tokens.append(chunk.token)
+        Consumes the response stream produced by `add_response_stream()` and aggregates
+        all received chunks into a single AskResponse object.
 
-            elif isinstance(chunk, ModelResponseChunk):
-                result.model_response = chunk.model_response
+        Args:
+            request: The add-response request containing the conversation ID and the
+                next user message.
+            skip_thinking: If True, excludes thinking tokens from the collected text.
+            chunks_white_list: Optional tuple of ResponseChunk types to collect.
+                If specified, only matching chunk types are processed. If None,
+                all parsed chunks are processed.
+            raise_for_stream_errors: If True, raises GrokStreamError when the final
+                model response contains stream errors.
 
-            elif isinstance(chunk, FinalMetadataChunk):
-                result.final_metadata = chunk.final_metadata
+        Returns:
+            AskResponse: Aggregated response containing collected text, model response,
+            conversation metadata, final metadata, and other parsed stream data.
+        """
+        return await _collect(
+            self.add_response_stream(request, skip_thinking, chunks_white_list),
+            raise_for_stream_errors,
+        )
 
-            elif isinstance(chunk, SurveyChunk):
-                result.survey = chunk.survey
 
-            elif isinstance(chunk, ConversationChunk):
-                result.conversation = chunk.conversation
+    async def new_ask(
+            self,
+            request: ChatRequest,
+            skip_thinking: bool = False,
+            chunks_white_list: Optional[Tuple[Type[ResponseChunk], ...]] = None,
+            raise_for_stream_errors: bool = False,
+    ) -> AskResponse:
+        """Send a new conversation request and collect the full response.
 
-            elif isinstance(chunk, TitleChunk):
-                result.title = chunk.new_title
+        Consumes the response stream produced by `new_ask_stream()` and aggregates
+        all received chunks into a single AskResponse object.
 
-        result.text = "".join(tokens)
-        if raise_for_stream_errors:
-            stream_errors = result.model_response.stream_errors
-            if stream_errors:
-                raise GrokStreamError(stream_errors[0])
+        Args:
+            request: The chat request for the new conversation.
+            skip_thinking: If True, excludes thinking tokens from the collected text.
+            chunks_white_list: Optional tuple of ResponseChunk types to collect.
+                If specified, only matching chunk types are processed. If None,
+                all parsed chunks are processed.
+            raise_for_stream_errors: If True, raises GrokStreamError when the final
+                model response contains stream errors.
 
-        return result
+        Returns:
+            AskResponse: Aggregated response containing collected text, model response,
+            conversation metadata, final metadata, and other parsed stream data.
+        """
+        return await _collect(
+            self.new_ask_stream(request, skip_thinking, chunks_white_list),
+            raise_for_stream_errors,
+        )
+
+
+async def _collect(
+        stream: AsyncIterator[ResponseChunk],
+        raise_for_stream_errors: bool,
+) -> AskResponse:
+    tokens = []
+    result = AskResponse(text="")
+
+    async for chunk in stream:
+        if isinstance(chunk, TokenChunk) and chunk.is_final and chunk.token:
+            tokens.append(chunk.token)
+        elif isinstance(chunk, ModelResponseChunk):
+            result.model_response = chunk.model_response
+        elif isinstance(chunk, FinalMetadataChunk):
+            result.final_metadata = chunk.final_metadata
+        elif isinstance(chunk, SurveyChunk):
+            result.survey = chunk.survey
+        elif isinstance(chunk, ConversationChunk):
+            result.conversation = chunk.conversation
+        elif isinstance(chunk, TitleChunk):
+            result.title = chunk.new_title
+
+    result.text = "".join(tokens)
+    if raise_for_stream_errors:
+        stream_errors = result.model_response.stream_errors
+        if stream_errors:
+            raise GrokStreamError(stream_errors[0])
+
+    return result
