@@ -1,11 +1,16 @@
 import asyncio
+from typing import Union
 
 from grok3api.client import GrokClient
+from grok3api.types import AskResponse
 from grok3api.types.request import ChatRequest, AddResponseRequest
 from grok3api.types.exceptions import GrokUnderHeavyUsageError
 
 
-async def stream_with_retry(client, request):
+async def stream_with_retry(
+        client: GrokClient,
+        request: Union[ChatRequest, AddResponseRequest]
+) -> AskResponse:
     while True:
         try:
             if isinstance(request, ChatRequest):

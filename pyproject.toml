@@ -10,7 +10,7 @@ authors = [{ name = "boykopovar", email = "boykopovar@gmail.com" }]
 license = "MIT"
 readme = "README.md"
 requires-python = ">=3.8"
-dependencies = ["aiohttp>=3.9", "coincurve"]
+dependencies = ["aiohttp>=3.9", "coincurve", "pydantic"]
 keywords = ["grok3api", "grok 3 api", "grok api", "grok3api python", "grok ai", "unofficial grok3api api", "async"]
 classifiers = [
     "Programming Language :: Python :: 3",

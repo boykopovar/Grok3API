@@ -150,6 +150,7 @@ def _decode_scalar(raw: Any, wire: WireType, cls: Optional[Type[Any]]) -> Any:
 def decode_message(cls: Type[T], buf: bytes) -> T:
     d = pb_parse(buf)
     kwargs: Dict[str, Any] = {}
+
     for fname, field_info in cls.model_fields.items():
         proto = _find_proto(field_info)
         if proto is None:
@@ -157,17 +158,24 @@ def decode_message(cls: Type[T], buf: bytes) -> T:
 
         raw_list = d.get(proto.tag, [])
 
+        if proto.wire == WireType.REPEATED_MESSAGE:
+            if proto.cls is None:
+                raise TypeError(f"{cls.__name__}.{fname}: repeated message requires cls")
+            items = []
+            for item in raw_list:
+                if not isinstance(item, (bytes, bytearray, memoryview)):
+                    raise TypeError(
+                        f"{cls.__name__}.{fname}: expected bytes for nested message, got {type(item).__name__}={item!r}"
+                    )
+                items.append(decode_message(proto.cls, bytes(item)))
+            kwargs[fname] = items
+            continue
+
         if proto.wire == WireType.REPEATED_STRING:
             kwargs[fname] = [
                 item.decode("utf-8", errors="replace") if isinstance(item, (bytes, bytearray)) else str(item)
                 for item in raw_list
             ]
-            continue
-
-        if proto.wire == WireType.REPEATED_MESSAGE:
-            if proto.cls is None:
-                raise TypeError("repeated_message wire type requires cls")
-            kwargs[fname] = [decode_message(proto.cls, item) for item in raw_list]
             continue
 
         if proto.wire == WireType.MAP_IGNORED:

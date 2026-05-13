@@ -130,7 +130,7 @@ class XSearchResults(_PbModel):
 
 
 class RagResult(_PbModel):
-    connector_type: Annotated[str, ProtoField(tag=1, wire=WireType.STRING)] = ""
+    connector_type: Annotated[str, ProtoField(tag=1, wire=WireType.STRING)] = "" # may be INT32 ?
     query: Annotated[str, ProtoField(tag=2, wire=WireType.STRING)] = ""
     chunk_content: Annotated[str, ProtoField(tag=3, wire=WireType.STRING)] = ""
     document_type: Annotated[str, ProtoField(tag=4, wire=WireType.STRING)] = ""

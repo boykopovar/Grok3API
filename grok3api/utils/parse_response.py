@@ -77,16 +77,18 @@ def _parse_add_response(buf: bytes) -> List[ResponseChunk]:
         )
 
     if ModelResponseChunk._TAG in d:
-        chunks.append(
-            ModelResponseChunk(
-                model_response=decode_message(
-                    ModelResponse,
-                    d[ModelResponseChunk._TAG][0],
+        raw = d[ModelResponseChunk._TAG][0]
+        if isinstance(raw, (bytes, bytearray)):
+            chunks.append(
+                ModelResponseChunk(
+                    model_response=decode_message(
+                        ModelResponse,
+                        bytes(raw),
+                    ),
+                    response_id=response_id,
+                    is_soft_stop=is_soft_stop,
                 ),
-                response_id=response_id,
-                is_soft_stop=is_soft_stop,
-            ),
-        )
+            )
 
     if FinalMetadataChunk._TAG in d:
         chunks.append(
@@ -113,13 +115,40 @@ def _parse_add_response(buf: bytes) -> List[ResponseChunk]:
 
 
 def parse_chunk(buf: bytes) -> List[ResponseChunk]:
-    """Parse a single gRPC frame body into zero or more ResponseChunk objects."""
+    """Parse a single gRPC frame body into zero or more ResponseChunk objects.
 
+    The server uses two AddResponse wire formats depending on whether this is a
+    new conversation or a message added to an existing one:
+
+      New conversation  -> outer: {1: <add_response_payload>}
+                          tag 20 (response_id) lives *inside* the payload.
+
+      Existing conv.    -> outer fields ARE the add_response payload directly,
+                          so tag 20 appears at the outer level alongside the
+                          token (tag 2), message_tag (tag 18), etc.
+
+    A special case is the user-message echo that the server sends at the start
+    of each turn in an existing conversation: outer {1: <Message proto>, 20: <id>}.
+    Tag 1 + tag 20 both present at the outer level → skip entirely.
+    """
 
     d = pb_parse(buf)
+
+    has_response_id = AddResponseTag.RESPONSE_ID in d
+    has_tag1 = 1 in d
+
     out: List[ResponseChunk] = []
-    if 1 in d:
+
+    if has_response_id and has_tag1:
+        return out
+
+    if has_response_id and not has_tag1:
+        out.extend(_parse_add_response(buf))
+        return out
+
+    if has_tag1:
         out.extend(_parse_add_response(d[1][0]))
+
     if ConversationChunk._TAG in d:
         out.append(
             ConversationChunk(
