@@ -15,7 +15,7 @@ class TokenChunk(BaseModel):
     is_soft_stop: bool
     message_tag: str
     message_step_id: Optional[int]
-    response_id: Optional[str]
+    response_id: str
     side_by_side_index: Optional[int]
     streaming_metadata: Optional[StreamingMetadata]
 
@@ -28,7 +28,7 @@ class ModelResponseChunk(BaseModel):
     _TAG: ClassVar[int] = 3
 
     model_response: ModelResponse
-    response_id: Optional[str]
+    response_id: str
     is_soft_stop: bool
 
 
@@ -36,14 +36,14 @@ class FinalMetadataChunk(BaseModel):
     _TAG: ClassVar[int] = 15
 
     final_metadata: FinalMetadata
-    response_id: Optional[str]
+    response_id: str
 
 
 class SurveyChunk(BaseModel):
     _TAG: ClassVar[int] = 41
 
     survey: Survey
-    response_id: Optional[str]
+    response_id: str
 
 
 class ConversationChunk(BaseModel):
