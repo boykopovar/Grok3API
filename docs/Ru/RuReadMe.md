@@ -1,5 +1,9 @@
 # Grok3API
 
+<p align="left">
+  <img src="../assets/icon.svg" width="90">
+</p>
+
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue?logo=python&logoColor=white)
 ![Reverse engineered](https://img.shields.io/badge/Reverse%20engineered%20with-🔬-red)
 
