@@ -1,0 +1,6 @@
+pip install -e . --no-build-isolation
+
+python setup.py build_ext --inplace
+
+git tag v0.2.1
+git push origin v0.2.1
