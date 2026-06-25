@@ -1,0 +1,3889 @@
+syntax = "proto3";
+
+package grok_api;
+
+import "google/protobuf/struct.proto";
+
+enum AlignmentProvider {
+  ALIGNMENT_PROVIDER_UNSPECIFIED = 0;
+  ALIGNMENT_PROVIDER_FORCED = 1;
+  ALIGNMENT_PROVIDER_WHISPER = 2;
+  ALIGNMENT_PROVIDER_HYBRID_FORCED_EN = 3;
+}
+
+enum ConnectorType {
+  CONNECTOR_TYPE_UNKNOWN = 0;
+  CONNECTOR_TYPE_GOOGLE_DRIVE = 1;
+  CONNECTOR_TYPE_NOTION = 2;
+  CONNECTOR_TYPE_SLACK = 3;
+  CONNECTOR_TYPE_GMAIL = 4;
+  CONNECTOR_TYPE_GOOGLE_CALENDAR = 5;
+  CONNECTOR_TYPE_SHAREPOINT = 6;
+  CONNECTOR_TYPE_OUTLOOK = 7;
+  CONNECTOR_TYPE_MICROSOFT_TEAMS = 8;
+}
+
+enum EnablePreferButtonTrigger {
+  ENABLE_PREFER_BUTTON_TRIGGER_ALWAYS = 0;
+  ENABLE_PREFER_BUTTON_TRIGGER_ONE_RESPONSE_FINISHED = 1;
+  ENABLE_PREFER_BUTTON_TRIGGER_ALL_RESPONSES_FINISHED = 2;
+}
+
+enum ImportedMemoryStatus {
+  IMPORTED_MEMORY_STATUS_UNSPECIFIED = 0;
+  IMPORTED_MEMORY_STATUS_NONE = 1;
+  IMPORTED_MEMORY_STATUS_PENDING = 2;
+  IMPORTED_MEMORY_STATUS_COMPLETE = 3;
+}
+
+enum ListConversationsMatchType {
+  UNKNOWN = 0;
+  MATCH_TITLE = 1;
+  MATCH_MESSAGE = 2;
+}
+
+enum ListShareLinksOrderBy {
+  LIST_SHARE_LINKS_ORDER_BY_INVALID = 0;
+  LIST_SHARE_LINKS_ORDER_BY_CREATE_TIME = 1;
+  LIST_SHARE_LINKS_ORDER_BY_VIEW_COUNT = 2;
+}
+
+enum MediaPostActionType {
+  MEDIA_POST_ACTION_TYPE_INVALID = 0;
+  MEDIA_POST_ACTION_TYPE_LIKE = 1;
+  MEDIA_POST_ACTION_TYPE_SHARE = 2;
+  MEDIA_POST_ACTION_TYPE_DOWNLOAD = 3;
+  MEDIA_POST_ACTION_TYPE_DELETE = 4;
+  MEDIA_POST_ACTION_TYPE_UPSCALE_VIDEO = 5;
+}
+
+enum MediaPostGenerateType {
+  MEDIA_POST_GENERATE_TYPE_UNSPECIFIED = 0;
+  MEDIA_POST_GENERATE_TYPE_IMAGE_GEN = 1;
+  MEDIA_POST_GENERATE_TYPE_IMAGE_EDIT = 2;
+}
+
+enum MediaPostMediaStatus {
+  MEDIA_POST_MEDIA_STATUS_INVALID = 0;
+  MEDIA_POST_MEDIA_STATUS_DRAFT_STARTED = 1;
+  MEDIA_POST_MEDIA_STATUS_DRAFT_COMPLETE = 2;
+  MEDIA_POST_MEDIA_STATUS_DRAFT_FAILED = 3;
+  MEDIA_POST_MEDIA_STATUS_PUBLISHED = 4;
+}
+
+enum MediaPostPlatform {
+  MEDIA_POST_PLATFORM_INVALID = 0;
+  MEDIA_POST_PLATFORM_GROK = 1;
+  MEDIA_POST_PLATFORM_X = 2;
+}
+
+enum MediaPostSource {
+  MEDIA_POST_SOURCE_INVALID = 0;
+  MEDIA_POST_SOURCE_PUBLIC = 1;
+  MEDIA_POST_SOURCE_LIKED = 2;
+  MEDIA_POST_SOURCE_OWNED = 3;
+  MEDIA_POST_SOURCE_CHARACTER_MENTIONED = 4;
+}
+
+enum MediaPostType {
+  MEDIA_POST_TYPE_INVALID = 0;
+  MEDIA_POST_TYPE_IMAGE = 1;
+  MEDIA_POST_TYPE_VIDEO = 2;
+  MEDIA_POST_TYPE_TEMPLATE = 3;
+}
+
+enum MediaPostVisibility {
+  MEDIA_POST_VISIBILITY_INVALID = 0;
+  MEDIA_POST_VISIBILITY_PUBLIC = 1;
+  MEDIA_POST_VISIBILITY_PRIVATE = 2;
+}
+
+enum MediaRejectionReason {
+  MEDIA_REJECTION_REASON_UNSPECIFIED = 0;
+  MEDIA_REJECTION_REASON_IP = 1;
+  MEDIA_REJECTION_REASON_SAFETY = 2;
+}
+
+enum MediaSearchIndexStatus {
+  MEDIA_SEARCH_INDEX_STATUS_NOT_ELIGIBLE = 0;
+  MEDIA_SEARCH_INDEX_STATUS_INDEXING = 1;
+  MEDIA_SEARCH_INDEX_STATUS_READY = 2;
+}
+
+enum MediaSearchResultType {
+  MEDIA_SEARCH_RESULT_TYPE_MEDIA_POST = 0;
+  MEDIA_SEARCH_RESULT_TYPE_CANVAS_NODE = 1;
+}
+
+enum MemoryV2OperationType {
+  MEMORY_V2_OPERATION_TYPE_ADD = 0;
+  MEMORY_V2_OPERATION_TYPE_EDIT = 1;
+  MEMORY_V2_OPERATION_TYPE_DELETE = 2;
+}
+
+enum ModeSubscriptionTier {
+  TIER_UNSPECIFIED = 0;
+  TIER_SUPERGROK = 1;
+  TIER_SUPERGROK_HEAVY = 2;
+  TIER_SUPERGROK_LITE = 3;
+}
+
+enum ModeTag {
+  TAG_UNSPECIFIED = 0;
+  TAG_SECONDARY = 1;
+  TAG_MCP = 2;
+  TAG_PLANE = 3;
+  TAG_PRIMARY = 4;
+}
+
+enum OriginalRefType {
+  ORIGINAL_REF_TYPE_INVALID = 0;
+  ORIGINAL_REF_TYPE_VIDEO_EXTENSION = 1;
+  ORIGINAL_REF_TYPE_VIDEO_EDIT = 2;
+  ORIGINAL_REF_TYPE_IMAGE_EDIT = 3;
+  ORIGINAL_REF_TYPE_MULTI_REF_IMAGE_EDIT = 4;
+  ORIGINAL_REF_TYPE_DOODLE_IMAGE_EDIT = 5;
+  ORIGINAL_REF_TYPE_TEMPLATE = 6;
+  ORIGINAL_REF_TYPE_VIDEO_REMIX = 7;
+}
+
+enum PipelineStepStatus {
+  PIPELINE_STEP_STATUS_PENDING = 0;
+  PIPELINE_STEP_STATUS_RUNNING = 1;
+  PIPELINE_STEP_STATUS_COMPLETED = 2;
+  PIPELINE_STEP_STATUS_FAILED = 3;
+}
+
+enum PipelineTemplateListFilter {
+  PIPELINE_TEMPLATE_LIST_FILTER_FEATURED = 0;
+  PIPELINE_TEMPLATE_LIST_FILTER_MY_TEMPLATES = 1;
+  PIPELINE_TEMPLATE_LIST_FILTER_ALL_PUBLISHED = 2;
+}
+
+enum PipelineTemplateVisibility {
+  PIPELINE_TEMPLATE_VISIBILITY_PRIVATE = 0;
+  PIPELINE_TEMPLATE_VISIBILITY_PUBLISHED = 1;
+}
+
+enum ProductAvailability {
+  IN_STOCK = 0;
+  AVAILABLE_FOR_ORDER = 1;
+  OUT_OF_STOCK = 2;
+  DISCONTINUED = 3;
+  PREORDER = 4;
+}
+
+enum ProductCondition {
+  NEW = 0;
+  REFURBISHED = 1;
+  USED = 2;
+}
+
+enum ProgressReportCategory {
+  PROGRESS_REPORT_CATEGORY_UNKNOWN = 0;
+  PROGRESS_REPORT_CATEGORY_ATTACHMENTS_PREPROCESSING = 1;
+  PROGRESS_REPORT_CATEGORY_HISTORY_ATTACHMENTS_PREPROCESSING = 2;
+  PROGRESS_REPORT_CATEGORY_WEBPAGE_ATTACHMENTS_PREPROCESSING = 3;
+  PROGRESS_REPORT_CATEGORY_HISTORY_WEBPAGE_ATTACHMENTS_PREPROCESSING = 4;
+  TOOL_PROCESSING = 5;
+  HEAVY_ROLLOUT = 6;
+}
+
+enum ProgressReportState {
+  PROGRESS_REPORT_STATUS_UNKNOWN = 0;
+  PROGRESS_REPORT_STATUS_PENDING = 1;
+  PROGRESS_REPORT_STATUS_SUCCESS = 2;
+  PROGRESS_REPORT_STATUS_FAILURE = 3;
+}
+
+enum ReasoningUiLayout {
+  UNSPECIFIED = 0;
+  UNIFIED = 1;
+  SPLIT = 2;
+  HEAVY = 3;
+  FUNCTION_CALL = 4;
+}
+
+enum RefinementLevel {
+  REFINEMENT_LEVEL_UNSPECIFIED = 0;
+  REFINEMENT_LEVEL_LEGACY_ENHANCE = 1;
+  REFINEMENT_LEVEL_POLISH = 2;
+  REFINEMENT_LEVEL_ENRICH = 3;
+}
+
+enum RequestKind {
+  DEFAULT = 0;
+  REASONING = 1;
+  DEEPSEARCH = 2;
+  DEEPERSEARCH = 3;
+}
+
+enum ResponseStatus {
+  RESPONSE_STATUS_UNKNOWN = 0;
+  RESPONSE_STATUS_ACTIVE = 1;
+  RESPONSE_STATUS_FINISHED = 2;
+  RESPONSE_STATUS_ERROR = 3;
+}
+
+enum StreamErrorSeverity {
+  STREAM_ERROR_SEVERITY_UNKNOWN = 0;
+  STREAM_ERROR_SEVERITY_NORMAL = 1;
+  STREAM_ERROR_SEVERITY_FATAL = 2;
+}
+
+enum SuggestionType {
+  SUGGESTION_TYPE_UNSPECIFIED = 0;
+  SUGGESTION_TYPE_SEARCH_COMPLETION = 1;
+  SUGGESTION_TYPE_STOCK = 2;
+  SUGGESTION_TYPE_QUICK_ANSWER = 3;
+  SUGGESTION_TYPE_GROK_COMPLETION = 4;
+}
+
+enum TextBoxSize {
+  TEXT_BOX_SIZE_UNSPECIFIED = 0;
+  TEXT_BOX_SIZE_SM = 1;
+  TEXT_BOX_SIZE_MD = 2;
+  TEXT_BOX_SIZE_LG = 3;
+}
+
+enum ToolPermissionScope {
+  TOOL_PERMISSION_SCOPE_UNSPECIFIED = 0;
+  TOOL_PERMISSION_SCOPE_CONVERSATION = 1;
+  TOOL_PERMISSION_SCOPE_GLOBAL = 2;
+}
+
+enum UploadJobStatus {
+  UNSET = 0;
+  INITIALIZED = 1;
+  UPLOADING = 2;
+  UPLOADED = 3;
+  PROCESSING = 4;
+  ERROR = 5;
+  SUCCESS = 6;
+  ABORTED = 7;
+  EXPIRED = 8;
+  RETRYING = 9;
+}
+
+enum UploadMethod {
+  UPLOAD_METHOD_UNSPECIFIED = 0;
+  UPLOAD_METHOD_SINGLE_PUT = 1;
+  UPLOAD_METHOD_RESUMABLE = 2;
+  UPLOAD_METHOD_MULTIPART = 3;
+}
+
+enum UpscaleTargetResolution {
+  UPSCALE_TARGET_RESOLUTION_HD = 0;
+  UPSCALE_TARGET_RESOLUTION_1080P = 1;
+}
+
+enum UsagePeriodType {
+  USAGE_PERIOD_TYPE_UNSPECIFIED = 0;
+  USAGE_PERIOD_TYPE_WEEKLY = 1;
+  USAGE_PERIOD_TYPE_MONTHLY = 2;
+}
+
+enum UsageUpgradeTier {
+  USAGE_UPGRADE_TIER_UNSPECIFIED = 0;
+  USAGE_UPGRADE_TIER_SUPER_GROK_LITE = 1;
+  USAGE_UPGRADE_TIER_SUPER_GROK = 2;
+  USAGE_UPGRADE_TIER_SUPER_GROK_HEAVY = 3;
+}
+
+enum UserFeedbackType {
+  general_feedback = 0;
+  issue_report = 1;
+  child_safety = 2;
+  response_feedback = 3;
+  non_consensual_intimate_content = 4;
+}
+
+enum VoiceAdminSortBy {
+  VOICE_ADMIN_SORT_BY_UNSPECIFIED = 0;
+  VOICE_ADMIN_SORT_BY_CREATED_AT_ASC = 1;
+  VOICE_ADMIN_SORT_BY_SAVE_COUNT = 2;
+}
+
+enum VoiceVisibility {
+  VOICE_VISIBILITY_UNSPECIFIED = 0;
+  VOICE_VISIBILITY_PRIVATE = 1;
+  VOICE_VISIBILITY_UNLISTED = 2;
+  VOICE_VISIBILITY_PUBLIC = 3;
+}
+
+message AcceptedSuggestionType {
+  SuggestionType type = 1;
+  int32 max_items = 2;
+}
+
+message AddMobileDeviceNotificationTokenRequest {
+  enum DeviceType {
+    UNKNOWN = 0;
+    IOS = 1;
+    ANDROID = 2;
+  }
+
+  string token = 1;
+  AddMobileDeviceNotificationTokenRequest.DeviceType device_type = 2;
+}
+
+message AddModelResponseRequest {
+  string conversation_id = 1;
+  string message = 2;
+  bool partial = 3;
+  string parent_response_id = 4;
+  repeated WebSearchResult web_search_results = 5;
+  repeated string xpost_ids = 6;
+  repeated string card_attachments_json = 7;
+  string thinking_trace = 8;
+  repeated ResponseStep steps = 9;
+  string banner_message = 10;
+  string disclaimer = 11;
+}
+
+message AddResponseRequest {
+  string conversation_id = 1;
+  string message = 2;
+  string model_name = 3;
+  string parent_response_id = 5;
+  string parent_quoted_text = 6;
+  bool disable_search = 8;
+  bool enable_image_generation = 9;
+  repeated string image_attachments = 16;
+  bool return_image_bytes = 17;
+  bool return_raw_grok_in_xai_request = 19;
+  repeated string file_attachments = 20;
+  bool enable_image_streaming = 21;
+  int32 image_generation_count = 22;
+  bool force_concise = 23;
+  ToolOverrides tool_overrides = 24;
+  bool enable_side_by_side = 25;
+  bool send_final_metadata = 27;
+  string custom_instructions = 28;
+  string custom_personality = 29;
+  string deepsearch_preset = 30;
+  string image_edit_uri = 31;
+  bool is_reasoning = 32;
+  string system_prompt_name = 33;
+  repeated string webpage_urls = 34;
+  google.protobuf.Struct metadata = 35;
+  repeated string image_edit_uris = 36;
+  bool disable_text_follow_ups = 37;
+  bool disable_artifact = 38;
+  string follow_up_type = 39;
+  bool disable_artifact_diff = 40;
+  bool do_force_trigger_artifact = 41;
+  bool is_from_grok_files = 42;
+  string resume_response_id = 43;
+  string selected_file_text_content = 44;
+  int32 selected_file_text_content_start_position = 45;
+  int32 selected_file_text_content_end_position = 46;
+  bool disable_memory = 47;
+  bool force_side_by_side = 48;
+  string thread_parent_id = 49;
+  ModelMode model_mode = 50;
+  repeated string models_user_can_use = 51;
+  bool skip_response_cache = 52;
+  bool is_async_chat = 53;
+  bool skip_cancel_current_inflight_requests = 54;
+  bool enable_nsfw = 55;
+  bool is_kids_mode = 56;
+  SupportedFastTools supported_fast_tools = 57;
+  bool is_regen_request = 58;
+  string companion_id = 59;
+  bool disable_self_harm_short_circuit = 61;
+  repeated string collection_ids = 62;
+  repeated string connector_ids = 63;
+  bool search_all_connectors = 64;
+  DeviceEnvInfo device_env_info = 65;
+  string model_override_key = 66;
+  GeoLocation browser_geo_location = 67;
+  bool disable_personalization = 69;
+  repeated Connector connectors = 70;
+  string imagine_project_id = 71;
+  string mode_id = 72;
+  ImagineCanvasContext imagine_canvas_context = 75;
+  repeated string disabled_connector_ids = 76;
+}
+
+message AddResponseResponse {
+  Response user_response = 1;
+  string token = 2;
+  Response model_response = 3;
+  QueryAction query_action = 4;
+  ImageGenerationResponse image_generation_response = 5;
+  XSearchResults x_search_results = 6;
+  CachedImageGenerationResponse cached_image_generation_response = 7;
+  WebSearchResults web_search_results = 8;
+  GrokInXaiRequest grok_in_xai_request = 10;
+  FollowUpSuggestions follow_up_suggestions = 11;
+  StreamingImageGenerationResponse streaming_image_generation_response = 12;
+  CardAttachment card_attachment = 13;
+  int32 side_by_side_index = 14;
+  FinalMetadata final_metadata = 15;
+  bool is_thinking = 16;
+  bool is_soft_stop = 17;
+  string message_tag = 18;
+  int32 message_step_id = 19;
+  string response_id = 20;
+  ImageAttachmentInfo image_attachment_info = 21;
+  BannerMessage banner_message = 22;
+  Disclaimer disclaimer = 23;
+  ProgressReport progress_report = 24;
+  MemoryReferences memory_references = 25;
+  ImageDimensions image_dimensions = 26;
+  FollowUpSuggestedMode follow_up_suggested_mode = 27;
+  UiLayout ui_layout = 28;
+  StreamingMetadata streaming_metadata = 29;
+  AuthNotification auth_notification = 30;
+  WebSearchResults cited_web_search_results = 31;
+  ToolDefinition tool_request = 32;
+  string tool_usage_card_id = 33;
+  StreamingVideoGenerationResponse streaming_video_generation_response = 34;
+  string rollout_id = 35;
+  SideBySideConfig side_by_side_config = 36;
+  StreamingAudioGenerationResponse streaming_audio_generation_response = 37;
+  EffortDecision effort_decision = 38;
+  LlmInfo llm_info = 39;
+  FastToolResponse fast_tool_response = 40;
+  Survey survey = 41;
+  RagResults rag_results = 42;
+  RagResults cited_rag_results = 43;
+  SearchProductResults search_product_results = 44;
+  ConnectorSearchResults connector_search_results = 45;
+  CollectionSearchResults collection_search_results = 46;
+  MemoryV2UpdateResult memory_v2_update_result = 47;
+  CodeExecutionResult code_execution_result = 48;
+  StreamError error = 49;
+  ToolUsageCard tool_usage_card = 50;
+  GenerateTitleResponse generated_title = 53;
+  Throttle throttle = 54;
+  KeepAlive keep_alive = 55;
+}
+
+message AddToGroupRequest {
+  string group_id = 1;
+  repeated string node_ids = 2;
+}
+
+message AddToGroupResponse {
+}
+
+message AddToolResponseRequest {
+  string response_id = 1;
+  google.protobuf.Struct tool_response = 2;
+}
+
+message AddUserResponseRequest {
+  string conversation_id = 1;
+  string message = 2;
+  string parent_response_id = 3;
+}
+
+message AgentCustomization {
+  int32 agent_id = 1;
+  string name = 2;
+  string instructions = 3;
+}
+
+message AgentCustomizations {
+  repeated AgentCustomization values = 1;
+}
+
+message AlignAudioRequest {
+  string transcript = 1;
+  string format = 2;
+  string audio_b64 = 3;
+  AlignmentProvider alignment_provider = 4;
+  string lang_code = 5;
+}
+
+message AlignAudioResponse {
+  repeated WordScore words = 1;
+  float score = 2;
+  int32 num_samples = 3;
+  string transcript = 4;
+  float inf_time = 5;
+  float alignment_score = 6;
+}
+
+message AndroidKeyAttest {
+  repeated bytes cert_chain_der = 1;
+}
+
+message ArticleItem {
+  string id = 1;
+  string text = 2;
+}
+
+message AskToShareConversationRequest {
+  string conversation_id = 1;
+}
+
+message AttachmentFileTooLargeDetails {
+  string file_name = 1;
+}
+
+message AttachmentImageTooLargeDetails {
+  int64 max_size_bytes = 1;
+  string file_name = 2;
+}
+
+message AttachmentLoadFailedDetails {
+}
+
+message AttachmentModeratedDetails {
+}
+
+message AttachmentTooManyPagesDetails {
+  int32 max_pages = 1;
+}
+
+message AudioChunk {
+  bytes data_ = 1;
+  string content_type = 2;
+}
+
+message AudioSegment {
+  string data_base64 = 1;
+  int32 sample_rate = 2;
+}
+
+message AuthNotification {
+  repeated OauthConnectorProvider providers = 1;
+}
+
+message BannerMessage {
+  string message = 1;
+}
+
+message BeyondContextLengthDetails {
+}
+
+message Brand {
+  string name = 1;
+  string icon_url = 2;
+}
+
+message BreakAsset {
+  BreakAssetText text = 1;
+  BreakAssetImage image = 2;
+  BreakAssetVideo video = 3;
+}
+
+message BreakAssetImage {
+  string url = 1;
+  uint32 width = 3;
+  uint32 height = 4;
+}
+
+message BreakAssetText {
+  string text = 1;
+}
+
+message BreakAssetVideo {
+  string url = 1;
+  uint32 length_ms = 2;
+  uint32 width = 3;
+  uint32 height = 4;
+}
+
+message BreakV1 {
+  uint32 delay_ms = 1;
+  string headline = 2;
+  string sub_headline = 3;
+  string cta_text = 4;
+  string cta_url = 5;
+  repeated BreakAsset assets = 6;
+  string countdown_style = 7;
+}
+
+message BulkAddPostsToFolderRequest {
+  repeated string post_ids = 1;
+  string folder_id = 2;
+}
+
+message BulkAddPostsToFolderResponse {
+  int32 added_count = 1;
+}
+
+message BulkGetCanvasNodesRequest {
+  repeated string canvas_ids = 1;
+}
+
+message BulkGetCanvasNodesResponse {
+  repeated CanvasNodeList canvases = 1;
+}
+
+message BulkGetMediaPostsRequest {
+  repeated string ids = 1;
+}
+
+message BulkGetMediaPostsResponse {
+  repeated MediaPost posts = 1;
+}
+
+message BulkRemovePostsFromFolderRequest {
+  repeated string post_ids = 1;
+  string folder_id = 2;
+}
+
+message BulkRemovePostsFromFolderResponse {
+  int32 removed_count = 1;
+}
+
+message BulkUnlikeMediaPostsRequest {
+  repeated string post_ids = 1;
+}
+
+message BulkUnlikeMediaPostsResponse {
+  int32 removed_count = 1;
+}
+
+message CachedImageGenerationResponse {
+  string image_url = 1;
+  bool moderated = 2;
+}
+
+message CalculatorTool {
+  string kind = 1;
+  string expression = 2;
+  string result = 3;
+}
+
+message CancelPipelineRequest {
+  string post_id = 1;
+}
+
+message CancelPipelineResponse {
+}
+
+message CanvasAssetData {
+  int32 width = 1;
+  int32 height = 2;
+  bool moderated = 3;
+  bool r_rated = 4;
+  string key = 5;
+  bool image_edit_is_root_user_uploaded = 6;
+  string mime_type = 7;
+  repeated CanvasInputAsset input_assets = 8;
+  string preview_image_key = 10;
+  float duration = 11;
+  string resolution_name = 12;
+  string hd_media_url = 13;
+  string hd_1080_media_url = 14;
+  string asset_id = 15;
+  string generation_type = 16;
+  bytes create_time = 17;
+  string prompt = 18;
+  string media_url = 19;
+  string thumbhash = 20;
+  bool has_watermark = 21;
+  bool is_root_user_uploaded = 22;
+  double video_extension_start_time = 23;
+  MediaPostCaptions captions = 24;
+}
+
+message CanvasBoardData {
+  string name = 1;
+  int32 columns = 2;
+  string layout = 3;
+}
+
+message CanvasDocument {
+  string id = 1;
+  string user_id = 2;
+  string name = 3;
+  int32 sort_order = 4;
+  bytes created_at = 5;
+  bytes updated_at = 6;
+  google.protobuf.Struct metadata = 7;
+}
+
+message CanvasDrawableData {
+}
+
+message CanvasGroupData {
+  string name = 1;
+  int32 columns = 2;
+  string layout = 3;
+  string image_gen_speed = 4;
+}
+
+message CanvasInputAsset {
+  string id = 1;
+  string url = 2;
+}
+
+message CanvasNode {
+  string id = 1;
+  CanvasNodePosition position = 7;
+  double scale = 22;
+  string parent_node_id = 23;
+  string prompt = 24;
+  google.protobuf.Struct metadata = 25;
+  CanvasPostData post = 30;
+  CanvasTextData text = 31;
+  CanvasStitchData stitch = 33;
+  CanvasGroupData group = 34;
+  CanvasBoardData board = 35;
+  CanvasAssetData asset = 36;
+  CanvasDrawableData drawable = 37;
+}
+
+message CanvasNodeList {
+  string canvas_id = 1;
+  repeated CanvasNode nodes = 2;
+}
+
+message CanvasNodePosition {
+  double x = 1;
+  double y = 2;
+}
+
+message CanvasPostData {
+  string post_id = 1;
+}
+
+message CanvasStitchData {
+  repeated CanvasStitchTrack tracks = 1;
+  string aspect_ratio = 2;
+}
+
+message CanvasStitchTrack {
+  string id = 1;
+  string post_id = 2;
+  double duration = 3;
+  double offset = 4;
+  google.protobuf.Struct metadata = 5;
+}
+
+message CanvasTextData {
+  string text_content = 1;
+  double font_size = 2;
+  double text_block_width = 3;
+}
+
+message CaptionVideoRequest {
+  string video_id = 1;
+  string container_id = 2;
+  string preset = 3;
+  google.protobuf.Struct style = 4;
+  string canvas_id = 5;
+}
+
+message CaptionVideoResponse {
+  string post_id = 1;
+  MediaPostMediaStatus status = 2;
+  int32 progress_pct = 3;
+  string message = 4;
+  MediaPost post = 5;
+  string error_message = 6;
+  CanvasNode canvas_node = 7;
+}
+
+message CaptionedVideoVariant {
+  string preset = 1;
+  string media_url = 2;
+  string source_resolution = 3;
+}
+
+message CardAttachment {
+  string json_data = 1;
+}
+
+message ChatMessageItem {
+  string role = 1;
+  string content = 2;
+}
+
+message ChooseSbsResponseRequest {
+  string conversation_id = 1;
+  string response_id = 2;
+}
+
+message CloneConversationRequest {
+  string share_link_id = 1;
+}
+
+message CloneConversationResponse {
+  Conversation conversation = 1;
+  repeated Response responses = 2;
+}
+
+message CodeExecutionResult {
+  string stdout = 1;
+  string stderr = 2;
+  int32 exit_code = 3;
+  bool command_timed_out = 4;
+}
+
+message CollectionSearchResultItem {
+  string file_id = 1;
+  string name = 2;
+  int64 size_bytes = 3;
+  string content_type = 4;
+  bytes created_at = 5;
+  bytes expires_at = 6;
+  string upload_status = 7;
+  string upload_error_message = 8;
+  string processing_status = 9;
+  string file_path = 10;
+  string url = 11;
+  string query = 12;
+  string chunk_content = 13;
+  string chunk_id = 14;
+}
+
+message CollectionSearchResults {
+  repeated CollectionSearchResultItem results = 1;
+}
+
+message CompanionConversation {
+  string companion_id = 1;
+  string conversation_id = 2;
+  int64 started_at = 3;
+  int64 updated_at = 4;
+}
+
+message CompletedPartInfo {
+  int32 part_number = 1;
+  string etag = 2;
+}
+
+message ConcurrencyLimitDetails {
+}
+
+message Connector {
+  string connector_id = 1;
+  repeated ConnectorAttribute attributes = 2;
+}
+
+message ConnectorSearchResultItem {
+  string file_id = 1;
+  ConnectorType connector_type = 2;
+  string query = 3;
+  string document_type = 4;
+  string document_title = 5;
+  string document_source_url = 6;
+  string chunk_content = 7;
+  string chunk_id = 8;
+}
+
+message ConnectorSearchResults {
+  repeated ConnectorSearchResultItem results = 1;
+}
+
+message ContentModeratedDetails {
+}
+
+message Conversation {
+  string conversation_id = 1;
+  string title = 2;
+  bytes create_time = 3;
+  bytes modify_time = 4;
+  bool starred = 6;
+  string system_prompt_name = 7;
+  bool temporary = 8;
+  repeated string media_types = 10;
+  repeated Workspace workspaces = 11;
+  OptionalTaskWithSchedule task_result = 12;
+  string team_id = 13;
+  string x_user_id = 14;
+  string template_id = 15;
+  string voice_chat_asset_url = 16;
+  string voice_chat_alignment_info = 17;
+  string voice_chat_session_metadata = 18;
+}
+
+message ConversationHistorySummary {
+  string title = 1;
+  int64 timestamp_ms = 2;
+}
+
+message CreateCanvasDocumentRequest {
+  string name = 1;
+  google.protobuf.Struct metadata = 2;
+  string post_id = 3;
+  repeated string lineage_post_ids = 4;
+}
+
+message CreateCanvasDocumentResponse {
+  CanvasDocument document = 1;
+  repeated CanvasNode nodes = 2;
+}
+
+message CreateCanvasNodeRequest {
+  string canvas_id = 1;
+  CanvasNode node = 2;
+}
+
+message CreateCanvasNodeResponse {
+  CanvasNode node = 1;
+}
+
+message CreateConversationAndRespondRequest {
+  string system_prompt_name = 2;
+  bool temporary = 3;
+  string model_name = 4;
+  string message = 5;
+  repeated string file_attachments = 6;
+  repeated string image_attachments = 7;
+  bool disable_search = 8;
+  bool enable_image_generation = 9;
+  bool return_image_bytes = 10;
+  bool return_raw_grok_in_xai_request = 11;
+  bool enable_image_streaming = 12;
+  int32 image_generation_count = 13;
+  bool force_concise = 14;
+  ToolOverrides tool_overrides = 15;
+  bool enable_side_by_side = 16;
+  bool send_final_metadata = 18;
+  string custom_instructions = 19;
+  string custom_personality = 20;
+  string deepsearch_preset = 30;
+  string image_edit_uri = 31;
+  bool is_reasoning = 32;
+  repeated string webpage_urls = 33;
+  repeated string image_edit_uris = 34;
+  repeated string workspace_ids = 35;
+  bool disable_text_follow_ups = 36;
+  bool disable_artifact = 37;
+  google.protobuf.Struct response_metadata = 38;
+  bool disable_artifact_diff = 39;
+  bool do_force_trigger_artifact = 40;
+  bool is_from_grok_files = 41;
+  string selected_file_text_content = 42;
+  int32 selected_file_text_content_start_position = 43;
+  int32 selected_file_text_content_end_position = 44;
+  bool disable_memory = 45;
+  bool force_side_by_side = 46;
+  ModelMode model_mode = 48;
+  repeated string models_user_can_use = 49;
+  bool skip_response_cache = 50;
+  bool is_async_chat = 51;
+  bool enable_nsfw = 52;
+  bool is_kids_mode = 53;
+  SupportedFastTools supported_fast_tools = 54;
+  bool is_regen_request = 55;
+  string companion_id = 59;
+  string template_id = 60;
+  bool disable_self_harm_short_circuit = 61;
+  repeated string collection_ids = 62;
+  repeated string connector_ids = 63;
+  bool search_all_connectors = 64;
+  DeviceEnvInfo device_env_info = 65;
+  string model_override_key = 66;
+  GeoLocation browser_geo_location = 67;
+  bool disable_personalization = 69;
+  repeated Connector connectors = 70;
+  string imagine_project_id = 71;
+  string mode_id = 72;
+  ImagineCanvasContext imagine_canvas_context = 75;
+  repeated string disabled_connector_ids = 76;
+}
+
+message CreateConversationAndRespondResponseChunk {
+  AddResponseResponse response = 1;
+  Conversation conversation = 2;
+  GenerateTitleResponse title = 3;
+}
+
+message CreateConversationRequest {
+  string system_prompt_name = 1;
+  bool temporary = 2;
+  AddResponseRequest add_response_request = 3;
+  repeated string workspace_ids = 4;
+  string task_result_id = 5;
+  string template_id = 6;
+}
+
+message CreateGrokCastRequest {
+  string title = 1;
+  string conversation_id = 2;
+  string generation_prompt = 3;
+  string audio_asset_id = 4;
+  string alignment_info = 5;
+}
+
+message CreateMediaConversationRequest {
+  string conversation_id = 1;
+  string canvas_id = 2;
+  string post_id = 3;
+}
+
+message CreateMediaConversationResponse {
+  MediaConversation conversation = 1;
+}
+
+message CreateMediaFolderRequest {
+  string name = 1;
+}
+
+message CreateMediaFolderResponse {
+  MediaFolder folder = 1;
+}
+
+message CreateMediaPostRequest {
+  MediaPostType media_type = 1;
+  string media_url = 2;
+  string original_post_id = 3;
+  string prompt = 4;
+  OriginalRefType original_ref_type = 5;
+  string asset_id = 6;
+}
+
+message CreateMediaPostResponse {
+  MediaPost post = 1;
+}
+
+message CreateMediaProjectRequest {
+}
+
+message CreateMediaProjectResponse {
+  MediaProject project = 1;
+}
+
+message CreatePassphraseRequest {
+  string language_code = 1;
+}
+
+message CreatePassphraseResponse {
+  string passphrase_id = 1;
+  int64 retrievable_at_ms = 2;
+  int64 expires_at_ms = 3;
+}
+
+message CreatePipelineTemplateRequest {
+  string name = 1;
+  string description = 2;
+  string thumbnail_url = 5;
+  string preview_url = 6;
+  string spec_json = 7;
+  bool anonymous = 8;
+}
+
+message CreatePipelineTemplateResponse {
+  PipelineTemplateProto template = 1;
+}
+
+message CreatePostLinkRequest {
+  string post_id = 1;
+  string source = 2;
+  string platform = 3;
+}
+
+message CreatePostLinkResponse {
+  string share_link = 1;
+}
+
+message CreateShareLinkRequest {
+  string voice_id = 1;
+}
+
+message CreateShareLinkResponse {
+  string share_token = 1;
+  ShareLinkMetadata metadata = 2;
+}
+
+message CreateTokenRequest {
+  string conversation_id = 1;
+  string agent_name = 2;
+  string session_payload = 3;
+  bool request_agent_dispatch = 4;
+  string livekit_url = 5;
+  string params = 6;
+}
+
+message CreateTokenResponse {
+  string token = 1;
+  string request_id = 2;
+}
+
+message CreateVoiceRequest {
+  string audio_b64 = 1;
+  string name = 2;
+  string format = 3;
+  string passphrase_id = 4;
+}
+
+message CreateVoiceResponse {
+  string voice_id = 1;
+  VoiceMetadata metadata = 2;
+}
+
+message CustomAttribute {
+  string name = 1;
+  string value_ = 2;
+}
+
+message DeleteAllMediaPostDataRequest {
+}
+
+message DeleteAllMediaPostDataResponse {
+}
+
+message DeleteAllMemoriesV2Request {
+  string companion_id = 1;
+}
+
+message DeleteAllMemoriesV2Response {
+  int32 num_deleted = 1;
+}
+
+message DeleteCanvasDocumentRequest {
+  string id = 1;
+}
+
+message DeleteCanvasDocumentResponse {
+}
+
+message DeleteCanvasNodeRequest {
+  string id = 1;
+}
+
+message DeleteCanvasNodeResponse {
+}
+
+message DeleteCharactersRequest {
+  repeated string character_ids = 1;
+}
+
+message DeleteCharactersResponse {
+}
+
+message DeleteCompanionConversationRequest {
+  string companion_id = 1;
+}
+
+message DeleteCompanionConversationResponse {
+  string conversation_id = 1;
+}
+
+message DeleteConversationRequest {
+  string conversation_id = 1;
+  bool delete_media = 2;
+}
+
+message DeleteMediaFolderRequest {
+  string id = 1;
+}
+
+message DeleteMediaFolderResponse {
+}
+
+message DeleteMediaPostRequest {
+  string id = 1;
+  bool is_hidden_for_client = 2;
+}
+
+message DeleteMediaPostResponse {
+}
+
+message DeleteMemoryRequest {
+  repeated string conversation_ids = 1;
+}
+
+message DeletePipelineTemplateRequest {
+  string template_id = 1;
+}
+
+message DeletePipelineTemplateResponse {
+}
+
+message DeleteShareLinkRequest {
+  string share_link_id = 1;
+}
+
+message DeleteSingleMemoryV2Request {
+  int64 id = 1;
+}
+
+message DeleteUserSkillRequest {
+  string name = 1;
+}
+
+message DeleteVoiceRequest {
+  string voice_id = 1;
+}
+
+message DeleteVoiceResponse {
+  bool success = 1;
+}
+
+message DeviceEnvInfo {
+  bool dark_mode_enabled = 1;
+  double device_pixel_ratio = 2;
+  int32 screen_width = 3;
+  int32 screen_height = 4;
+  int32 viewport_width = 5;
+  int32 viewport_height = 6;
+}
+
+message DirectUploadData {
+  bytes file_data = 1;
+  string file_name = 2;
+  string file_mime_type = 3;
+  UploadedFileSourceType file_source = 4;
+}
+
+message Disclaimer {
+  string message = 1;
+}
+
+message DownloadUserSkillRequest {
+  string name = 1;
+}
+
+message DownloadUserSkillResponse {
+  bytes zip_content = 1;
+  string filename = 2;
+}
+
+message EditMemoryV2Request {
+  int64 id = 1;
+  string content = 2;
+}
+
+message EditMemoryV2Response {
+  UserMemoryV2 memory = 1;
+}
+
+message EditVoiceApprovalRequest {
+  string voice_id = 1;
+  bool approved = 2;
+}
+
+message EditVoiceApprovalResponse {
+  VoiceMetadata metadata = 1;
+}
+
+message EffortDecision {
+  enum Effort {
+    UNSPECIFIED = 0;
+    LOW = 1;
+    HIGH = 2;
+  }
+
+  EffortDecision.Effort effort = 1;
+  string steer_model_id = 2;
+}
+
+message FastToolResponse {
+  string title = 1;
+  string subtitle = 2;
+  string body = 3;
+  CalculatorTool calculator_tool = 4;
+  UnitConversionTool unit_conversion_tool = 5;
+}
+
+message FeatureControls {
+  bool enable_file_uploads = 1;
+  bool enable_image_uploads = 2;
+  bool enable_web_search = 3;
+  bool enable_x_search = 4;
+  bool enable_voice_mode = 5;
+  bool enable_imagine = 6;
+  bool enable_imagine_nsfw = 7;
+  bool enable_imagine_chat = 8;
+}
+
+message FeedbackAttachment {
+  string filename = 1;
+  string content_type = 2;
+  string data_ = 3;
+}
+
+message FeedbackLabel {
+  string id = 1;
+  string label_en = 2;
+  string icon = 3;
+}
+
+message FetchMemoriesV2Request {
+  string companion_id = 1;
+}
+
+message FetchMemoriesV2Response {
+  repeated UserMemoryV2 memories = 1;
+}
+
+message FileMetadata {
+  string file_metadata_id = 1;
+  string file_mime_type = 2;
+  string file_name = 3;
+  string file_uri = 4;
+  string parsed_file_uri = 5;
+  bytes create_time = 6;
+  UploadedFileSourceType file_source = 7;
+  string third_party_file_id = 8;
+  string third_party_file_mime_type = 9;
+}
+
+message FileUploadAbortRequest {
+  string upload_id = 1;
+}
+
+message FileUploadAbortResponse {
+  UploadJobStatus final_status = 1;
+  bool aborted_now = 2;
+}
+
+message FileUploadStatusRequest {
+  string upload_id = 1;
+}
+
+message FileUploadStatusResponse {
+  string upload_id = 1;
+  string asset_id = 2;
+  UploadJobStatus status = 3;
+  FileMetadata file_metadata = 4;
+  string error_message = 5;
+}
+
+message FinalMetadata {
+  repeated FollowUpSuggestion follow_up_suggestions = 1;
+  repeated FeedbackLabel feedback_labels = 2;
+  ToolOverrides tools_used = 3;
+  string disclaimer = 4;
+}
+
+message FinancialReport {
+  int64 fiscal_year = 1;
+  string fiscal_period = 2;
+  FinancialValue report = 3;
+  string end_date = 4;
+  string filing_date = 5;
+}
+
+message FinancialValue {
+  double value_ = 1;
+  double change = 2;
+  double change_percent = 3;
+  string unit = 4;
+  string label = 5;
+}
+
+message FindStockRequest {
+  string ticker = 1;
+}
+
+message FindStockResponse {
+  repeated GetStockMiniSummaryResponse stock_summaries = 1;
+}
+
+message FollowUpSuggestedMode {
+  string mode = 1;
+  string web = 2;
+  string mobile = 3;
+}
+
+message FollowUpSuggestion {
+  FollowUpSuggestionProperties properties = 1;
+  string label = 2;
+  ToolOverrides tool_overrides = 3;
+}
+
+message FollowUpSuggestionProperties {
+  string message_type = 1;
+  string follow_up_type = 2;
+}
+
+message FollowUpSuggestions {
+  repeated FollowUpSuggestion suggestions = 1;
+}
+
+message ForkPipelineTemplateRequest {
+  string source_template_id = 1;
+  string name = 2;
+}
+
+message ForkPipelineTemplateResponse {
+  PipelineTemplateProto template = 1;
+}
+
+message GenderAttribute {
+  enum Gender {
+    FEMALE = 0;
+    MALE = 1;
+    UNISEX = 2;
+  }
+
+  GenderAttribute.Gender value_ = 1;
+}
+
+message GenerateTitleRequest {
+  string conversation_id = 1;
+  string leaf_response_id = 2;
+}
+
+message GenerateTitleResponse {
+  string new_title = 1;
+}
+
+message GeoLocation {
+  float latitude = 1;
+  float longitude = 2;
+  float accuracy = 3;
+}
+
+message GetAllArtifactsMetadataRequest {
+  string conversation_id = 1;
+}
+
+message GetAllArtifactsMetadataResponse {
+  repeated GrokStudioArtifactMetadata artifacts_metadata = 1;
+}
+
+message GetArtifactByIdRequest {
+  string artifact_id = 1;
+  string conversation_id = 2;
+  string response_id = 3;
+}
+
+message GetArtifactByIdResponse {
+  repeated GrokStudioVersionedArtifact artifacts = 1;
+}
+
+message GetArtifactContentRequest {
+  string artifact_version_id = 1;
+}
+
+message GetArtifactContentResponse {
+  string full_artifact = 1;
+  string artifact_diff = 2;
+}
+
+message GetAttestationChallengeRequest {
+}
+
+message GetAttestationChallengeResponse {
+  string challenge = 1;
+}
+
+message GetCanvasAssetsRequest {
+  repeated string asset_ids = 1;
+}
+
+message GetCanvasAssetsResponse {
+  repeated CanvasAssetData assets = 1;
+}
+
+message GetCanvasDocumentRequest {
+  string id = 1;
+}
+
+message GetCanvasDocumentResponse {
+  CanvasDocument document = 1;
+  repeated CanvasNode nodes = 2;
+}
+
+message GetCompanionConversationsRequest {
+}
+
+message GetCompanionConversationsResponse {
+  repeated CompanionConversation conversations = 1;
+}
+
+message GetConversationExistsRequest {
+  string conversation_id = 1;
+}
+
+message GetConversationExistsResponse {
+  bool exists = 1;
+}
+
+message GetConversationRequest {
+  string conversation_id = 1;
+  bool include_workspaces = 2;
+  bool include_task_result = 3;
+  string rid = 4;
+}
+
+message GetConversationResponse {
+  Conversation conversation = 1;
+  string share_link_path = 2;
+  GrokForTeamsSwitchPrompt team_switch_prompt = 3;
+}
+
+message GetConversationStartersResponse {
+  repeated string starters = 1;
+}
+
+message GetConversationsRequest {
+  repeated string conversation_ids = 1;
+  bool include_workspaces = 2;
+  bool include_task_result = 3;
+}
+
+message GetConversationsResponse {
+  repeated Conversation conversations = 1;
+}
+
+message GetFeatureControlsRequest {
+  string team_id = 1;
+}
+
+message GetFileMetadataRequest {
+  string file_metadata_id = 1;
+}
+
+message GetGrokCastRequest {
+  string grokcast_id = 1;
+}
+
+message GetImagineQuotaInfoRequest {
+}
+
+message GetImagineQuotaInfoResponse {
+  ImagineQuotaInfo image = 1;
+  ImagineQuotaInfo image_pro = 2;
+  ImagineQuotaInfo image_edit = 3;
+  ImagineQuotaInfo video = 4;
+  ImagineQuotaInfo video_720p = 5;
+}
+
+message GetImportedMemoryStatusRequest {
+}
+
+message GetImportedMemoryStatusResponse {
+  ImportedMemoryStatus status = 1;
+  string last_import_timestamp = 2;
+}
+
+message GetMediaConversationsRequest {
+  string canvas_id = 1;
+  string post_id = 2;
+}
+
+message GetMediaConversationsResponse {
+  repeated MediaConversation conversations = 1;
+}
+
+message GetMediaPostRequest {
+  string id = 1;
+  bool is_kids_mode = 2;
+  bool is_nsfw_enabled = 3;
+  bool with_container_only = 4;
+  string request_user_id = 5;
+}
+
+message GetMediaPostResponse {
+  MediaPost post = 1;
+}
+
+message GetMediaProjectRequest {
+  string id = 1;
+}
+
+message GetMediaProjectResponse {
+  MediaProject project = 1;
+}
+
+message GetMediaSearchStatusRequest {
+}
+
+message GetMediaSearchStatusResponse {
+  MediaSearchIndexStatus status = 1;
+  int32 item_count = 2;
+}
+
+message GetMemoryRequest {
+  repeated string conversation_ids = 1;
+}
+
+message GetMemoryResponse {
+  repeated UserMemory memories = 1;
+}
+
+message GetModelsImagineOverridesRequest {
+}
+
+message GetModelsImagineOverridesResponse {
+  repeated ModelMapOverride model_map_overrides = 1;
+}
+
+message GetModelsRequest {
+  string locale = 1;
+}
+
+message GetModelsResponse {
+  repeated ModelDescription models = 1;
+  string default_free_model = 2;
+  string default_pro_model = 3;
+  repeated ModelDescription unavailable_models = 4;
+  string default_anon_model = 5;
+  string default_heavy_model = 6;
+  ModelMode default_anon_mode = 7;
+  ModelMode default_free_mode = 8;
+  ModelMode default_pro_mode = 9;
+  ModelMode default_heavy_mode = 10;
+}
+
+message GetPassphraseRequest {
+  string passphrase_id = 1;
+}
+
+message GetPassphraseResponse {
+  string passphrase = 1;
+}
+
+message GetPipelineTemplateRequest {
+  string template_id = 1;
+}
+
+message GetPipelineTemplateResponse {
+  PipelineTemplateProto template = 1;
+  PipelineTemplateSummary summary = 2;
+}
+
+message GetQuickAnswerRequest {
+  string query = 1;
+}
+
+message GetQuickAnswerResponse {
+  repeated Suggestion suggestions = 1;
+}
+
+message GetRateLimitsRequest {
+  RequestKind request_kind = 1;
+  string model_name = 2;
+}
+
+message GetRateLimitsResponse {
+  int32 window_size_seconds = 1;
+  int32 remaining_queries = 2;
+  int32 wait_time_seconds = 3;
+  int32 total_queries = 4;
+  int32 remaining_tokens = 5;
+  int32 total_tokens = 6;
+  ModelEffortRateLimits low_effort_rate_limits = 7;
+  ModelEffortRateLimits high_effort_rate_limits = 8;
+  uint32 pre_generation_delay_ms = 9;
+}
+
+message GetRelatedTickersResponse {
+  GetStockMiniSummaryResponse related_tickers = 1;
+}
+
+message GetShareLinkRequest {
+  string share_link_id = 1;
+}
+
+message GetShareLinkResponse {
+  repeated Response responses = 1;
+  Conversation conversation = 2;
+  GrokForTeamsSwitchPrompt team_switch_prompt = 3;
+  bool allow_indexing = 4;
+  int64 view_count = 5;
+}
+
+message GetSharedArtifactRequest {
+  string shared_artifact_id = 1;
+}
+
+message GetSharedArtifactResponse {
+  string parsed_artifact = 1;
+  Conversation conversation = 2;
+}
+
+message GetStockChartDataRequest {
+  string ticker = 1;
+  string timespan = 2;
+}
+
+message GetStockChartDataResponse {
+  string ticker = 1;
+  StockChartData chart_data = 2;
+  string unit = 3;
+}
+
+message GetStockFinancialsRequest {
+  string ticker = 1;
+  string timeframe = 2;
+}
+
+message GetStockFinancialsResponse {
+  string ticker = 1;
+  FinancialReport balance_sheets = 2;
+  FinancialReport income_statements = 3;
+  FinancialReport cash_flows = 4;
+}
+
+message GetStockMiniSummaryResponse {
+  string ticker = 1;
+  StockOverview stock_overview = 2;
+  FinancialValue finance_value = 3;
+  StockChartData prev_day = 4;
+  int64 timestamp = 5;
+}
+
+message GetStockSummaryResponse {
+  string ticker = 1;
+  int64 timestamp = 2;
+  double market_cap = 3;
+  StockChartData prev_day = 4;
+  StockChartData current_day = 5;
+  StockDividend dividend = 6;
+  StockChartData one_year = 7;
+}
+
+message GetStockTickerRequest {
+  string ticker = 1;
+}
+
+message GetSuggestionsRequest {
+  string query = 1;
+  int32 count = 2;
+  bool include_answers = 3;
+  repeated SuggestionConversationChatMessage conversation = 4;
+  repeated SuggestionConversationSummary conversation_history = 5;
+}
+
+message GetSuggestionsResponse {
+  string query = 1;
+  repeated Suggestion suggestions = 2;
+}
+
+message GetUserMemoryBlurbRequest {
+}
+
+message GetUserMemoryBlurbResponse {
+  string memory_content = 1;
+}
+
+message GetUserSkillRequest {
+  string name = 1;
+}
+
+message GetVoiceRequest {
+  string voice_id = 1;
+}
+
+message GetVoiceResponse {
+  VoiceMetadata metadata = 1;
+}
+
+message GlobalRateLimitDetails {
+}
+
+message GoogleDriveFile {
+  string id = 1;
+  string name = 2;
+  string mime_type = 3;
+}
+
+message GoogleDriveFilesListRequest {
+  string query = 1;
+}
+
+message GoogleDriveFilesListResponse {
+  repeated GoogleDriveFile files = 1;
+}
+
+message GoogleDriveReadFileRequest {
+  string id = 1;
+}
+
+message GoogleDriveReadFileResponse {
+  bytes content = 1;
+  string mime = 2;
+}
+
+message GrokCast {
+  string id = 1;
+  string owner_id = 2;
+  string status = 3;
+  string title = 4;
+  string conversation_id = 5;
+  string generation_prompt = 6;
+  string audio_asset_id = 7;
+  string alignment_info = 8;
+  bytes created_at = 9;
+  bytes updated_at = 10;
+  bytes deleted_at = 11;
+}
+
+message GrokCastListItem {
+  string id = 1;
+  string title = 2;
+  string status = 3;
+}
+
+message GrokCompletionSuggestion {
+  string text = 1;
+}
+
+message GrokForTeamsSwitchPrompt {
+  string team_id = 1;
+  bool switch_to_personal_team = 2;
+}
+
+message GrokInXaiRequest {
+  string request_json = 1;
+}
+
+message GrokStudioArtifactMetadata {
+  string artifact_id = 1;
+  string conversation_id = 2;
+  string title = 3;
+  string content_type = 4;
+  bytes create_time = 5;
+  ArtifactInlineStatusType inline_status = 6;
+  bytes update_time = 7;
+}
+
+message GrokStudioVersionedArtifact {
+  string artifact_id = 1;
+  string artifact_version_id = 2;
+  string title = 3;
+  string content_type = 4;
+  string conversation_id = 5;
+  string response_id = 6;
+  string full_artifact = 7;
+  string artifact_diff = 8;
+  bytes create_time = 9;
+  ArtifactInlineStatusType inline_status = 10;
+  bytes update_time = 11;
+}
+
+message Image {
+  string url = 1;
+  int32 height = 2;
+  int32 width = 3;
+}
+
+message ImageAttachmentInfo {
+  int32 image_attachment_count = 1;
+}
+
+message ImageDimensions {
+  uint32 width = 1;
+  uint32 height = 2;
+}
+
+message ImageGeneration {
+  string conversation_id = 1;
+  string image_url = 2;
+  string image_query = 3;
+  string assistant_message = 4;
+  bytes create_time = 5;
+  string response_id = 6;
+}
+
+message ImageGenerationResponse {
+  bytes generated_image_bytes = 1;
+  string content_type = 2;
+}
+
+message ImagineCanvasContext {
+  string target_canvas_id = 1;
+}
+
+message ImagineQuotaInfo {
+  bool available = 1;
+  int32 remaining_queries = 2;
+  int32 window_size_seconds = 3;
+  bytes next_available_at = 4;
+}
+
+message ImportMemoryRequest {
+  string content = 1;
+}
+
+message InflightResponse {
+  string response_id = 1;
+  ResponseStatus status = 2;
+  bytes create_time = 3;
+  string parent_response_id = 4;
+  string thread_parent_id = 5;
+}
+
+message InputMediaItem {
+  string id = 1;
+  string mime_type = 2;
+  string media_url = 3;
+  Resolution resolution = 4;
+  bool moderated = 5;
+  bool r_rated = 6;
+}
+
+message InternalErrorDetails {
+}
+
+message IosAppAttest {
+  bytes key_id = 1;
+  bytes attestation_object = 2;
+}
+
+message KeepAlive {
+}
+
+message LikeMediaPostRequest {
+  string id = 1;
+  string folder_id = 2;
+}
+
+message LikeMediaPostResponse {
+}
+
+message Likert {
+  string id = 1;
+  repeated string labels = 2;
+  repeated SurveyValue values = 3;
+}
+
+message ListCanvasDocumentsRequest {
+  int32 limit = 1;
+  string cursor = 2;
+}
+
+message ListCanvasDocumentsResponse {
+  repeated CanvasDocument documents = 1;
+  string next_cursor = 2;
+}
+
+message ListCanvasNodesRequest {
+  string canvas_id = 1;
+}
+
+message ListCanvasNodesResponse {
+  repeated CanvasNode nodes = 1;
+}
+
+message ListCharactersRequest {
+}
+
+message ListCharactersResponse {
+  repeated MediaCharacter characters = 1;
+}
+
+message ListConversationsMatch {
+  Conversation conversation = 1;
+  ListConversationsMatchType match_type = 2;
+  string matched_response_id = 3;
+  string highlight = 4;
+  repeated string matched_words = 5;
+}
+
+message ListConversationsRequest {
+  int64 page_size = 1;
+  string page_token = 2;
+  string search_query = 3;
+  string workspace_id = 5;
+  bool filter_is_starred = 6;
+  bool force_elastic = 8;
+}
+
+message ListConversationsResponse {
+  repeated Conversation conversations = 1;
+  string next_page_token = 2;
+  repeated ListConversationsMatch text_search_matches = 3;
+}
+
+message ListGrokCastsRequest {
+  string conversation_id = 1;
+}
+
+message ListGrokCastsResponse {
+  repeated GrokCastListItem grokcasts = 1;
+}
+
+message ListImageGenerationsResponse {
+  repeated ImageGeneration generations = 1;
+}
+
+message ListMediaFoldersRequest {
+}
+
+message ListMediaFoldersResponse {
+  repeated MediaFolder folders = 1;
+}
+
+message ListMediaPostFoldersRequest {
+  string post_id = 1;
+}
+
+message ListMediaPostFoldersResponse {
+  repeated MediaFolder folders = 1;
+}
+
+message ListMediaPostsFilter {
+  MediaPostSource source = 1;
+  string user_id = 2;
+  MediaPostType media_type = 3;
+  string folder_id = 4;
+  bool safe_for_work = 5;
+}
+
+message ListMediaPostsRequest {
+  int32 limit = 1;
+  string cursor = 2;
+  ListMediaPostsFilter filter = 3;
+  bool is_kids_mode = 4;
+  bool is_nsfw_enabled = 5;
+  bool with_container_only = 6;
+  bool include_canvas = 7;
+}
+
+message ListMediaPostsResponse {
+  repeated MediaPost posts = 1;
+  string next_cursor = 2;
+}
+
+message ListMediaProjectsRequest {
+  int32 limit = 1;
+  string cursor = 2;
+}
+
+message ListMediaProjectsResponse {
+  repeated MediaProject projects = 1;
+  string next_cursor = 2;
+}
+
+message ListModesRequest {
+  string locale = 1;
+}
+
+message ListModesResponse {
+  repeated Mode modes = 1;
+  string default_mode_id = 2;
+}
+
+message ListPermissionsResponse {
+  repeated PermissionResponseEntry tools = 1;
+}
+
+message ListPipelineTemplatesRequest {
+  PipelineTemplateListFilter filter = 1;
+  int32 limit = 3;
+  string cursor = 4;
+}
+
+message ListPipelineTemplatesResponse {
+  repeated PipelineTemplateProto templates = 1;
+  repeated PipelineTemplateSummary summaries = 2;
+  string next_cursor = 3;
+}
+
+message ListResponseNodesRequest {
+  string conversation_id = 1;
+  bool include_threads = 2;
+}
+
+message ListResponseNodesResponse {
+  repeated ResponseNode response_nodes = 1;
+  repeated InflightResponse inflight_responses = 2;
+}
+
+message ListResponsesRequest {
+  string conversation_id = 1;
+  bool include_threads = 2;
+}
+
+message ListResponsesResponse {
+  repeated Response responses = 1;
+  repeated InflightResponse inflight_responses = 2;
+}
+
+message ListSavedVoicesRequest {
+  int32 limit = 1;
+}
+
+message ListSavedVoicesResponse {
+  repeated SavedVoiceEntry saved_voices = 1;
+}
+
+message ListShareLinkSummariesResponse {
+  repeated ShareLinkSummary share_link_summaries = 1;
+  string next_page_token = 2;
+}
+
+message ListShareLinksRequest {
+  int64 page_size = 1;
+  string page_token = 2;
+  bool shared_with_me = 3;
+  string conversation_id = 4;
+  string response_id = 5;
+  ListShareLinksOrderBy order_by = 6;
+  string workspace_id = 7;
+}
+
+message ListShareLinksResponse {
+  repeated ShareLink share_links = 1;
+  string next_page_token = 2;
+}
+
+message ListSharedMediaPostsRequest {
+  int32 limit = 1;
+  string cursor = 2;
+}
+
+message ListSharedMediaPostsResponse {
+  repeated SharedMediaPostItem posts = 1;
+  string next_cursor = 2;
+}
+
+message ListSkillsRequest {
+  string locale = 1;
+}
+
+message ListSkillsResponse {
+  repeated Skill skills = 1;
+}
+
+message ListSoftDeletedConversationsRequest {
+  int64 page_size = 1;
+  string page_token = 2;
+  string workspace_id = 3;
+}
+
+message ListSoftDeletedConversationsResponse {
+  repeated Conversation conversations = 1;
+  string next_page_token = 2;
+}
+
+message ListTopVoicesRequest {
+  int32 limit = 1;
+}
+
+message ListTopVoicesResponse {
+  repeated TopVoiceEntry voices = 1;
+}
+
+message ListUserSkillsResponse {
+  repeated UserSkillMetadata skills = 1;
+}
+
+message ListVoiceShareLinksRequest {
+  string voice_id = 1;
+  int32 limit = 2;
+}
+
+message ListVoiceShareLinksResponse {
+  repeated ShareLinkMetadata links = 1;
+}
+
+message ListVoicesAdminRequest {
+  VoiceVisibility visibility = 1;
+  bool approved = 2;
+  string query = 3;
+  int32 limit = 4;
+  VoiceAdminSortBy sort_by = 6;
+}
+
+message ListVoicesAdminResponse {
+  repeated VoiceMetadata voices = 1;
+}
+
+message ListVoicesRequest {
+  int32 limit = 1;
+  string cursor = 2;
+}
+
+message ListVoicesResponse {
+  repeated VoiceMetadata voices = 1;
+  string next_cursor = 2;
+}
+
+message LlmInfo {
+  string model_hash = 1;
+}
+
+message LoadResponsesRequest {
+  string conversation_id = 1;
+  repeated string response_ids = 2;
+}
+
+message LoadResponsesResponse {
+  repeated Response responses = 1;
+}
+
+message MediaCharacter {
+  string character_id = 1;
+  string preview_url = 2;
+  string character_name = 3;
+}
+
+message MediaConversation {
+  string id = 1;
+  string user_id = 2;
+  string conversation_id = 3;
+  string canvas_id = 4;
+  string post_id = 5;
+  bytes created_at = 6;
+  bytes updated_at = 7;
+}
+
+message MediaFolder {
+  string id = 1;
+  string user_id = 2;
+  string name = 3;
+  bytes create_time = 4;
+  bytes update_time = 5;
+}
+
+message MediaItem {
+  Image image = 1;
+  Video video = 2;
+}
+
+message MediaPost {
+  string id = 1;
+  string user_id = 2;
+  bytes create_time = 3;
+  string prompt = 4;
+  MediaPostType media_type = 5;
+  string media_url = 6;
+  string mime_type = 7;
+  string original_post_id = 8;
+  repeated string audio_urls = 9;
+  MediaPost original_post = 10;
+  string conversation_id = 11;
+  repeated MediaPost child_posts = 12;
+  string original_prompt = 13;
+  string mode = 14;
+  UserInteractionStatus user_interaction_status = 15;
+  Resolution resolution = 16;
+  string model_name = 17;
+  string title = 18;
+  string hd_media_url = 19;
+  string thumbnail_image_url = 20;
+  OriginalRefType original_ref_type = 21;
+  MediaPostPlatform platform = 22;
+  MediaPostMediaStatus media_status = 23;
+  string last_frame_thumbnail_image_url = 24;
+  string watermarked_media_url = 25;
+  double video_extension_start_time = 26;
+  repeated MediaPostActionType available_actions = 27;
+  float video_duration = 28;
+  bool moderated = 29;
+  repeated MediaPost images = 30;
+  repeated MediaPost videos = 31;
+  bool r_rated = 32;
+  bool is_hidden_for_client = 33;
+  string resolution_name = 34;
+  repeated InputMediaItem input_media_items = 35;
+  bool has_watermark = 36;
+  MediaPostTemplate template = 37;
+  string remix_image_reference = 38;
+  string hd_1080_media_url = 39;
+  bool is_root_user_uploaded = 40;
+  bool is_v2 = 42;
+  string canvas_id = 43;
+  MediaPostCaptions captions = 44;
+}
+
+message MediaPostCaptions {
+  bool baked = 1;
+  string preset = 2;
+  repeated CaptionedVideoVariant variants = 3;
+}
+
+message MediaPostTemplate {
+  string inputs = 1;
+  string output_name = 2;
+  string id = 3;
+  int32 version = 4;
+}
+
+message MediaProject {
+  string id = 1;
+  string user_id = 2;
+  repeated string versions = 3;
+  string current_version = 4;
+  repeated MediaProjectAsset assets = 5;
+  repeated MediaProjectTimeline timelines = 6;
+  bytes create_time = 7;
+  bytes update_time = 8;
+  repeated string conversation_ids = 9;
+}
+
+message MediaProjectAsset {
+  string id = 1;
+  string thumbnail_image_url = 2;
+}
+
+message MediaProjectClip {
+  string id = 1;
+  string asset_id = 2;
+  double start_time = 3;
+  double end_time = 4;
+}
+
+message MediaProjectTimeline {
+  string id = 1;
+  repeated MediaProjectClip clips = 2;
+}
+
+message MediaSearchResult {
+  string post_id = 1;
+  string root_post_id = 2;
+  MediaPostType media_type = 3;
+  string media_url = 4;
+  int32 width = 5;
+  int32 height = 6;
+  bytes create_time = 7;
+  bool r_rated = 8;
+  float duration = 9;
+  MediaSearchResultType result_type = 10;
+  string thumbnail_url = 11;
+}
+
+message MemoryKeyMapping {
+  string x_user_id = 1;
+  string x_conversation_id = 2;
+  string xai_user_id = 3;
+  string xai_conversation_id = 4;
+}
+
+message MemoryReference {
+  string conversation_id = 1;
+  string summary = 2;
+}
+
+message MemoryReferences {
+  repeated MemoryReference references = 1;
+}
+
+message MemoryV2UpdateResult {
+  string old_memory_substring = 1;
+  string new_memory_substring = 2;
+  MemoryV2OperationType operation_type = 3;
+  double expires_at_timestamp = 4;
+}
+
+message Merchant {
+  string merchant_id = 1;
+  string name = 2;
+  string icon_url = 3;
+}
+
+message MigrateConversationsRequest {
+  repeated MigratedConversation conversations = 1;
+}
+
+message MigrateFileRequest {
+  string file_name = 1;
+  string file_mime_type = 2;
+  bytes content = 3;
+  bool is_model_generated = 4;
+}
+
+message MigrateMemoryRequest {
+  repeated MemoryKeyMapping memory_key_mappings = 1;
+}
+
+message MigrateResponsesRequest {
+  repeated MigratedResponse responses = 1;
+}
+
+message MigratedConversation {
+  string conversation_id = 1;
+  string title = 2;
+  bytes create_time = 3;
+  bytes modify_time = 4;
+  bool starred = 5;
+  string system_prompt_name = 6;
+  bool is_x_shared = 7;
+  string controller = 8;
+}
+
+message MigratedResponse {
+  string response_id = 1;
+  string conversation_id = 2;
+  string message = 3;
+  string sender = 4;
+  bytes create_time = 5;
+  string parent_response_id = 6;
+  bool partial = 7;
+  string query = 8;
+  string query_type = 9;
+  repeated WebSearchResult web_search_results = 10;
+  repeated string xpost_ids = 11;
+  repeated string generated_image_urls = 12;
+  repeated string image_attachments = 13;
+  repeated string file_attachments = 14;
+  repeated string card_attachments_json = 15;
+  string thinking_trace = 16;
+  repeated ResponseStep steps = 17;
+  string image_edit_uri = 18;
+  string error = 19;
+  repeated string webpage_urls = 20;
+  google.protobuf.Struct metadata = 21;
+  repeated WebSearchResult cited_web_search_results = 22;
+  repeated MemoryReference memory_references = 23;
+  UiLayout ui_layout = 24;
+  repeated RagResult rag_results = 25;
+  repeated RagResult cited_rag_results = 26;
+  repeated ConnectorSearchResultItem connector_search_results = 49;
+  repeated CollectionSearchResultItem collection_search_results = 50;
+}
+
+message Mode {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string badge_text = 4;
+  ModeAvailability availability = 5;
+  string icon_hint = 6;
+  repeated ModeTag tags = 7;
+}
+
+message ModeAvailability {
+  message ComingSoon {
+    string message = 1;
+    bytes eta = 2;
+  }
+
+  message RequiresUpgrade {
+    string message = 1;
+    ModeSubscriptionTier minimum_subscription_tier = 2;
+  }
+
+  message Unavailable {
+    string message = 1;
+  }
+
+  ModeAvailability.Available available = 1;
+  ModeAvailability.Unavailable unavailable = 2;
+  ModeAvailability.RequiresUpgrade requires_upgrade = 3;
+  ModeAvailability.ComingSoon coming_soon = 4;
+}
+
+message ModelDescription {
+  string name = 1;
+  string description = 2;
+  string model_id = 3;
+  repeated string tags = 4;
+  string badge_text = 5;
+  ModelMode model_mode = 6;
+  string mode_description = 7;
+  string mode_name = 8;
+  PromptingBackend prompting_backend = 9;
+}
+
+message ModelEffortRateLimits {
+  uint32 cost = 1;
+  int32 wait_time_seconds = 2;
+  uint32 remaining_queries = 3;
+}
+
+message ModelMapOverride {
+  string name = 1;
+  string key = 2;
+  string type = 3;
+  repeated string options = 4;
+}
+
+message ModelNotAvailableDetails {
+}
+
+message MultipartUploadDetails {
+  repeated PartUploadUrl parts = 1;
+  int64 part_size = 2;
+}
+
+message Offering {
+  Merchant merchant = 1;
+  ProductAvailability availability = 2;
+  string url = 3;
+  ProductCondition condition = 4;
+  Price price = 5;
+  OfferingAction action = 6;
+}
+
+message OfferingAction {
+  OfferingActionLink link = 1;
+}
+
+message OfferingActionLink {
+  string url = 1;
+}
+
+message OrganizationAdminControls {
+  bool disable_personal_workspaces = 1;
+  bool disable_response_likes_dislikes = 2;
+  bool block_personal_usage_on_network = 3;
+}
+
+message PartUploadUrl {
+  int32 part_number = 1;
+  string url = 2;
+}
+
+message PatchCanvasNodeRequest {
+  string id = 1;
+  CanvasNodePosition position = 2;
+  double scale = 3;
+  string parent_node_id = 4;
+}
+
+message PatchCanvasNodeResponse {
+}
+
+message PermissionResponseEntry {
+  string id = 1;
+  ToolDefinition definition = 2;
+}
+
+message PipelineInputField {
+  string name = 1;
+  string text_value = 2;
+  string image_url = 3;
+}
+
+message PipelineStepProgress {
+  string step_name = 1;
+  PipelineStepStatus status = 2;
+  int32 progress_pct = 3;
+  int32 retry_attempt = 4;
+  int32 retry_max = 5;
+}
+
+message PipelineTemplateInputDef {
+  string name = 1;
+  string input_type = 2;
+  string label = 3;
+  string description = 4;
+  bool required = 5;
+  string default_value = 6;
+}
+
+message PipelineTemplateProto {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string thumbnail_url = 6;
+  string preview_url = 7;
+  string spec_json = 8;
+  repeated PipelineTemplateVersionInfo versions = 9;
+  int32 published_version = 10;
+  string user_id = 11;
+  PipelineTemplateVisibility visibility = 13;
+  bool is_featured = 14;
+  int32 sort_order = 15;
+  int64 run_count = 16;
+  int32 credit_cost = 17;
+  bytes created_at = 18;
+  bytes updated_at = 19;
+  string x_handle = 20;
+}
+
+message PipelineTemplateSummary {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string thumbnail_url = 6;
+  string preview_url = 7;
+  repeated PipelineTemplateInputDef inputs = 8;
+  int32 published_version = 9;
+  string user_id = 10;
+  int64 run_count = 11;
+  int32 credit_cost = 12;
+  bytes created_at = 13;
+  string x_handle = 14;
+  string primary_output_media_type = 15;
+}
+
+message PipelineTemplateVersionInfo {
+  int32 version = 1;
+  bytes published_at = 2;
+  string published_by = 3;
+}
+
+message PostVoiceChatRecordingRequest {
+  bytes content_bytes = 1;
+  string mime_type = 2;
+  string conversation_id = 3;
+  string response_id = 4;
+  string session_metadata = 5;
+  string alignment_info = 6;
+}
+
+message PostVoiceChatRecordingResponse {
+  string share_link_path = 1;
+  string asset_url = 2;
+}
+
+message PresignedCompletion {
+  string upload_id = 1;
+  repeated CompletedPartInfo completed_parts = 2;
+}
+
+message Price {
+  string currency_code = 1;
+  string amount = 2;
+}
+
+message Product {
+  string product_id = 1;
+  repeated ProductSource identifiers = 2;
+  string title = 3;
+  string description = 4;
+  repeated ProductAttribute attributes = 5;
+  repeated MediaItem media_items = 6;
+  Brand brand = 7;
+  RatingsBreakdown ratings_breakdown = 8;
+  repeated Product variants = 10;
+  repeated Offering offerings = 11;
+}
+
+message ProductAttribute {
+  GenderAttribute gender = 1;
+  CustomAttribute custom = 2;
+}
+
+message ProductSource {
+  string name = 1;
+  string source_product_id = 2;
+}
+
+message ProgressReport {
+  ProgressReportCategory category = 1;
+  ProgressReportState state = 2;
+  string message = 3;
+  float percentage = 4;
+}
+
+message PublishPipelineTemplateRequest {
+  string template_id = 1;
+}
+
+message PublishPipelineTemplateResponse {
+  PipelineTemplateProto template = 1;
+  int32 published_version = 2;
+}
+
+message QueryAction {
+  string query = 1;
+  string type = 2;
+}
+
+message QuickAnswerSuggestion {
+  string text = 1;
+}
+
+message RagResult {
+  ConnectorType connector_type = 1;
+  string query = 2;
+  string chunk_content = 3;
+  string document_type = 4;
+  string document_title = 5;
+  string document_source_url = 6;
+}
+
+message RagResults {
+  repeated RagResult results = 1;
+}
+
+message RatingsBreakdown {
+  double average_rating = 1;
+  int32 total_reviews = 2;
+}
+
+message ReadResponseRequest {
+  string response_id = 1;
+  string voice_id = 2;
+}
+
+message ReadResponseResponse {
+  bytes audio_chunk = 1;
+}
+
+message ReadUserSkillFileRequest {
+  string name = 1;
+  string file_path = 2;
+}
+
+message ReadUserSkillFileResponse {
+  bytes content = 1;
+  string content_type = 2;
+  uint64 size_bytes = 3;
+}
+
+message ReconnectResponseRequest {
+  string response_id = 1;
+}
+
+message ReconnectResponseResponse {
+  AddResponseResponse response = 1;
+  GenerateTitleResponse title = 2;
+}
+
+message RegisterAttestationRequest {
+  string challenge = 1;
+  IosAppAttest ios = 2;
+  AndroidKeyAttest android = 3;
+}
+
+message RegisterAttestationResponse {
+}
+
+message RemoveFromGroupRequest {
+  repeated string node_ids = 1;
+}
+
+message RemoveFromGroupResponse {
+}
+
+message RenderPerMessageLimitExceededDetails {
+  int32 dropped_count = 1;
+}
+
+message RenderToolFailedDetails {
+  int32 failed_count = 1;
+}
+
+message RenderToolRateLimitedDetails {
+  int32 rate_limited_count = 1;
+}
+
+message RequestCancelledDetails {
+}
+
+message RequestMetadata {
+  string model = 1;
+  ModelMode mode = 2;
+  UiLayout.Effort effort = 3;
+}
+
+message Resolution {
+  int32 width = 1;
+  int32 height = 2;
+}
+
+message ResolveShareLinkRequest {
+  string share_token = 1;
+}
+
+message ResolveShareLinkResponse {
+  ShareLinkMetadata link = 1;
+  VoiceMetadata voice = 2;
+}
+
+message Response {
+  string response_id = 1;
+  string message = 2;
+  string sender = 3;
+  bytes create_time = 4;
+  string parent_response_id = 5;
+  bool manual = 6;
+  bool partial = 7;
+  bool shared = 8;
+  string query = 9;
+  string query_type = 10;
+  repeated WebSearchResult web_search_results = 11;
+  repeated string xpost_ids = 12;
+  repeated XPost xposts = 13;
+  repeated string generated_image_urls = 14;
+  repeated string image_attachments = 15;
+  repeated string file_attachments = 16;
+  repeated string card_attachments_json = 18;
+  repeated string file_uris = 19;
+  repeated FileMetadata file_attachments_metadata = 20;
+  bool is_control = 21;
+  string thinking_trace = 22;
+  repeated ResponseStep steps = 23;
+  string image_edit_uri = 24;
+  string error = 25;
+  repeated string media_types = 26;
+  repeated string webpage_urls = 27;
+  google.protobuf.Struct metadata = 28;
+  repeated string image_edit_uris = 29;
+  uint32 generated_image_height = 30;
+  uint32 generated_image_width = 31;
+  UiLayout ui_layout = 32;
+  bytes thinking_start_time = 33;
+  bytes thinking_end_time = 34;
+  repeated WebSearchResult cited_web_search_results = 35;
+  string selected_file_text_content = 36;
+  int32 selected_file_text_content_start_position = 37;
+  int32 selected_file_text_content_end_position = 38;
+  repeated google.protobuf.Struct tool_responses = 39;
+  string thread_parent_id = 40;
+  string parent_quoted_text = 41;
+  string model = 42;
+  SideBySideConfig side_by_side_config = 43;
+  FastToolResponse fast_tool_response = 44;
+  RequestMetadata request_metadata = 45;
+  repeated RagResult rag_results = 46;
+  repeated RagResult cited_rag_results = 47;
+  repeated SearchProductResult search_product_results = 48;
+  repeated ConnectorSearchResultItem connector_search_results = 49;
+  repeated CollectionSearchResultItem collection_search_results = 50;
+  repeated StreamError stream_errors = 52;
+}
+
+message ResponseNode {
+  string response_id = 1;
+  string sender = 3;
+  string parent_response_id = 5;
+  string thread_parent_id = 6;
+}
+
+message ResponseStep {
+  repeated string text = 1;
+  repeated string tags = 2;
+  repeated WebSearchResult web_search_results = 3;
+  repeated string xpost_ids = 4;
+  repeated XPost xposts = 5;
+  repeated ToolUsageResult tool_usage_results = 6;
+  string rollout_id = 7;
+  repeated RagResult rag_results = 8;
+  repeated ConnectorSearchResultItem connector_search_results = 9;
+  repeated CollectionSearchResultItem collection_search_results = 10;
+  repeated ToolUsageCard tool_usage_cards = 11;
+}
+
+message RestoreCanvasNodeRequest {
+  string id = 1;
+}
+
+message RestoreCanvasNodeResponse {
+}
+
+message RestoreSoftDeletedConversationRequest {
+  string conversation_id = 1;
+}
+
+message ResumableUploadDetails {
+  string url = 1;
+  int64 recommended_chunk_size = 2;
+}
+
+message ResumePipelineRequest {
+  string post_id = 1;
+}
+
+message RevokeShareLinkRequest {
+  string share_token = 1;
+}
+
+message RevokeShareLinkResponse {
+  bool success = 1;
+}
+
+message RevokeTookPermissionRequest {
+  string id = 1;
+}
+
+message RollbackPipelineTemplateRequest {
+  string template_id = 1;
+  int32 target_version = 2;
+}
+
+message RollbackPipelineTemplateResponse {
+  PipelineTemplateProto template = 1;
+}
+
+message RunCodeRequest {
+  string language = 1;
+  string code = 2;
+}
+
+message RunCodeResponse {
+  bool success = 1;
+  string stdout = 2;
+  string stderr = 3;
+  string output_files = 4;
+}
+
+message RunTemplatePipelineRequest {
+  string template_id = 1;
+  repeated PipelineInputField inputs = 2;
+  string spec_json = 3;
+  string redo_post_id = 4;
+  bool redo_appends_container = 5;
+  bool is_kids_mode = 8;
+  bool enable_nsfw = 9;
+}
+
+message RunTemplatePipelineResponse {
+  string post_id = 1;
+  MediaPostMediaStatus pipeline_status = 2;
+  repeated PipelineStepProgress steps = 3;
+  int32 overall_progress_pct = 4;
+  MediaPost post = 5;
+  string error_message = 6;
+}
+
+message SaveVoiceRequest {
+  string voice_id = 1;
+  string share_token = 2;
+}
+
+message SaveVoiceResponse {
+  bool success = 1;
+}
+
+message SavedVoiceEntry {
+  string voice_id = 1;
+  bytes saved_at = 2;
+  VoiceMetadata voice = 3;
+}
+
+message SearchCompletionSuggestion {
+  string text = 1;
+}
+
+message SearchMediaPostsRequest {
+  string query = 1;
+  int32 limit = 2;
+  string cursor = 3;
+  repeated string exclude_root_post_ids = 4;
+  repeated string root_post_ids = 5;
+  string similar_to_post_id = 6;
+}
+
+message SearchMediaPostsResponse {
+  repeated MediaSearchResult results = 1;
+  string next_cursor = 2;
+}
+
+message SearchProductResult {
+  string search_product_result_id = 1;
+  Product product = 2;
+}
+
+message SearchProductResults {
+  repeated SearchProductResult results = 1;
+}
+
+message SearchVoicesRequest {
+  string query = 1;
+  int32 limit = 2;
+}
+
+message SearchVoicesResponse {
+  repeated VoiceMetadata voices = 1;
+}
+
+message SetCanvasThumbnailRequest {
+  string canvas_id = 1;
+  bytes image = 2;
+  string content_type = 3;
+}
+
+message SetCanvasThumbnailResponse {
+  string thumbnail_url = 1;
+}
+
+message SetMediaPostVisibilityRequest {
+  string post_id = 1;
+  MediaPostVisibility visibility = 2;
+}
+
+message SetMediaPostVisibilityResponse {
+}
+
+message SetUserSettingsRequest {
+  bool exclude_from_training = 1;
+  google.protobuf.Value preferences = 2;
+  bool allow_x_personalization = 3;
+  bool enable_memory = 4;
+  bool allow_share_indexing = 5;
+  bool allow_companion_notifications = 6;
+  bool allow_auto_share = 7;
+  repeated AgentCustomization agent_customizations_deprecated = 8;
+  AgentCustomizations agent_customizations = 9;
+  bool allow_grok_finished_notification = 11;
+}
+
+message SetUserSkillEnabledRequest {
+  string name = 1;
+  bool enabled = 2;
+}
+
+message ShareArtifactRequest {
+  string conversation_id = 1;
+  string response_id = 2;
+  string artifact_id = 3;
+  string artifact_version_id = 4;
+}
+
+message ShareArtifactResponse {
+  string shared_artifact_id = 1;
+}
+
+message ShareConversationRequest {
+  string conversation_id = 1;
+  string response_id = 2;
+  repeated string team_members_to_share = 3;
+  bool share_with_team_members = 4;
+  bool share_publicly = 5;
+  bool allow_indexing = 6;
+}
+
+message ShareConversationResponse {
+  string share_link_id = 1;
+}
+
+message ShareLink {
+  string share_link_id = 1;
+  string conversation_id = 2;
+  string response_id = 3;
+  bool is_public = 4;
+  bytes create_time = 5;
+  bytes modify_time = 6;
+  string team_id = 7;
+  bool shared_with_team = 8;
+  repeated string shared_with_user_ids = 9;
+  string public_id = 10;
+  string xai_user_id = 11;
+  GetShareLinkResponse shared_link = 12;
+  int64 view_count = 13;
+}
+
+message ShareLinkMetadata {
+  string share_token = 1;
+  string voice_id = 2;
+  string owner_id = 3;
+  string voice_name = 4;
+  string creator_display_name = 5;
+  float duration_seconds = 6;
+  bytes created_at = 7;
+  int64 resolve_count = 8;
+}
+
+message ShareLinkSummary {
+  string share_link_id = 1;
+  string conversation_id = 2;
+  string conversation_title = 3;
+  bytes create_time = 4;
+}
+
+message ShareVoiceChatRequest {
+  bytes video_bytes = 1;
+  string text = 2;
+}
+
+message SharedMediaPostItem {
+  string post_id = 1;
+  string thumbnail_image_url = 2;
+  string prompt = 3;
+  int64 view_count = 4;
+  int64 created_at = 5;
+}
+
+message ShortResponse {
+  string response_id = 1;
+  string conversation_id = 2;
+  string sender = 3;
+  string message = 4;
+  string parent_response_id = 5;
+  repeated string generated_image_urls = 6;
+  repeated string image_attachments = 7;
+  repeated string file_attachments = 8;
+  string image_edit_uri = 9;
+  repeated string webpage_urls = 10;
+  string metadata = 11;
+  bytes create_time = 12;
+  string selected_file_text_content = 13;
+  int32 selected_file_text_content_start_position = 14;
+  int32 selected_file_text_content_end_position = 15;
+  string thread_parent_id = 16;
+  string parent_quoted_text = 17;
+  string model = 18;
+  repeated string card_attachments_json = 19;
+}
+
+message SideBySideConfig {
+  SingleThinkingDifferentSummary single_thinking_different_summary = 1;
+  EnablePreferButtonTrigger enable_prefer_button_trigger = 2;
+  bool stream_final_answers_together = 3;
+  bool hide_thinking_trace = 4;
+  bool use_length_control_container = 5;
+}
+
+message SinglePutDetails {
+  string url = 1;
+  string required_headers = 2;
+}
+
+message SingleThinkingDifferentSummary {
+  enum Kind {
+    KIND_UNKNOWN = 0;
+    KIND_SINGLE_THINKING_DIFFERENT_SUMMARY = 1;
+  }
+
+  SingleThinkingDifferentSummary.Kind kind = 1;
+  int32 side_by_side_single_think_index = 2;
+  EnablePreferButtonTrigger enable_prefer_button_trigger = 3;
+}
+
+message Skill {
+  uint32 index = 1;
+  string name = 2;
+  string description = 3;
+  string icon = 4;
+  string display_name = 5;
+}
+
+message SkillFileInfo {
+  string relative_path = 1;
+  uint64 size_bytes = 2;
+  bool executable = 3;
+  string content_type = 4;
+}
+
+message SoftDeleteAllConversationsRequest {
+}
+
+message SoftDeleteConversationRequest {
+  string conversation_id = 1;
+}
+
+message SpeechToTextGenerateRequest {
+  string audio_base64 = 1;
+  string audio_format = 2;
+  int32 max_tokens = 3;
+  bool enhance = 4;
+  repeated ChatMessageItem history = 5;
+  RefinementLevel refinement_level = 6;
+}
+
+message SpeechToTextGenerateResponse {
+  string text = 1;
+  float sampling_time = 2;
+  repeated WordScore words = 3;
+  string language_code = 4;
+}
+
+message StockChartData {
+  int64 timestamp = 1;
+  double open_ = 2;
+  double high = 3;
+  double low = 4;
+  double close = 5;
+  double volume = 6;
+  double average = 7;
+}
+
+message StockDividend {
+  string ex_dividend_date = 1;
+  string payment_date = 2;
+  int64 frequency = 3;
+  double cash_amount = 4;
+  double dividend_yield = 5;
+}
+
+message StockOverview {
+  string ticker = 1;
+  string name = 2;
+  string icon_url = 3;
+  string logo_url = 4;
+  string exchange = 5;
+  string currency = 6;
+  string market = 7;
+  int64 weighted_shares_outstanding = 8;
+  int64 share_class_shares_outstanding = 9;
+  string ticker_type = 10;
+}
+
+message StockSuggestion {
+  GetStockMiniSummaryResponse data_ = 1;
+}
+
+message StopConversationInflightResponsesRequest {
+  string conversation_id = 1;
+}
+
+message StopInflightResponseRequest {
+  string response_id = 1;
+}
+
+message StreamError {
+  string message = 1;
+  GlobalRateLimitDetails global_rate_limit = 2;
+  ModelNotAvailableDetails model_not_available = 3;
+  SystemKillSwitchDetails system_kill_switch = 4;
+  BeyondContextLengthDetails beyond_context_length = 5;
+  UserPromptTooLongDetails user_prompt_too_long = 6;
+  AttachmentModeratedDetails attachment_moderated = 7;
+  AttachmentImageTooLargeDetails attachment_image_too_large = 8;
+  AttachmentFileTooLargeDetails attachment_file_too_large = 9;
+  AttachmentTooManyPagesDetails attachment_too_many_pages = 10;
+  AttachmentLoadFailedDetails attachment_load_failed = 11;
+  InternalErrorDetails internal_error = 12;
+  RequestCancelledDetails request_cancelled = 13;
+  RenderToolFailedDetails render_tool_failed = 14;
+  RenderToolRateLimitedDetails render_tool_rate_limited = 15;
+  ToolCallFailedDetails tool_call_failed = 16;
+  StreamErrorSeverity severity = 17;
+  ContentModeratedDetails content_moderated = 18;
+  UsagePoolExhaustedDetails usage_pool_exhausted = 19;
+  UsageLimitReachedDetails usage_limit_reached = 20;
+  RenderPerMessageLimitExceededDetails render_per_message_limit_exceeded = 21;
+  ConcurrencyLimitDetails concurrency_limit = 22;
+}
+
+message StreamSuggestionsRequest {
+  string query = 1;
+  repeated AcceptedSuggestionType accepted_types = 2;
+  repeated SuggestionChatMessage conversation = 3;
+  repeated ConversationHistorySummary conversation_history = 4;
+}
+
+message StreamSuggestionsResponse {
+  SearchCompletionSuggestion search_completion = 1;
+  StockSuggestion stock = 2;
+  QuickAnswerSuggestion quick_answer = 3;
+  GrokCompletionSuggestion grok_completion = 4;
+}
+
+message StreamingAudioGenerationResponse {
+  string video_id = 1;
+  repeated string audio_urls = 2;
+}
+
+message StreamingImageGenerationResponse {
+  string image_url = 1;
+  int32 seq = 2;
+  int32 progress = 3;
+  bool moderated = 4;
+  string image_id = 5;
+  int32 image_index = 6;
+  string asset_id = 7;
+  string image_model = 8;
+  bool r_rated = 9;
+  int32 side_by_side_index = 10;
+  bool has_watermark = 11;
+  bool is_root_user_uploaded = 13;
+  MediaRejectionReason rejection_reason = 14;
+}
+
+message StreamingMetadata {
+  string stream_key = 1;
+  string msg_id = 2;
+}
+
+message StreamingVideoGenerationResponse {
+  string video_id = 1;
+  int32 progress = 2;
+  string asset_id = 3;
+  string video_url = 4;
+  repeated string audio_urls = 5;
+  string video_prompt = 6;
+  string image_reference = 7;
+  repeated string audio_transcripts = 8;
+  bool moderated = 9;
+  string mode = 10;
+  string model_name = 11;
+  string thumbnail_image_url = 12;
+  string parent_post_id = 13;
+  string video_post_id = 14;
+  int32 side_by_side_index = 15;
+  bool r_rated = 16;
+  int32 video_streaming_index = 17;
+  int32 height = 18;
+  int32 width = 19;
+  float video_streaming_duration = 20;
+  string resolution_name = 21;
+  bool has_watermark = 22;
+  bool is_root_user_uploaded = 24;
+  MediaRejectionReason rejection_reason = 25;
+}
+
+message SubmitTidaReportRequest {
+  string content_belongs_to = 1;
+  string reporter_email = 2;
+  string signature = 3;
+  string content_type = 4;
+  repeated string content_links = 5;
+  string description = 6;
+  bool confirm_include_content_in_updates = 7;
+  bool confirm_private_info_report = 8;
+  bool confirm_accuracy_under_perjury = 9;
+  string reporter_account_name = 10;
+  string reported_account_username = 11;
+  string conversation_id = 12;
+  string response_id = 13;
+  string media_post_id = 14;
+  string media_url = 15;
+  string report_category = 16;
+  string verification_code = 17;
+  string report_source = 18;
+}
+
+message SubmitTidaReportResponse {
+  string report_id = 1;
+}
+
+message Suggestion {
+  string text = 1;
+  string type = 2;
+}
+
+message SuggestionChatMessage {
+  string role = 1;
+  string content = 2;
+}
+
+message SuggestionConversationChatMessage {
+  string role = 1;
+  string content = 2;
+}
+
+message SuggestionConversationSummary {
+  string title = 1;
+  int64 timestamp_ms = 2;
+}
+
+message SupportedFastTools {
+  string calculator_tool = 1;
+  string unit_conversion_tool = 2;
+}
+
+message Survey {
+  string survey_title = 1;
+  string statsig_survey_name = 2;
+  repeated SurveyElement elements = 3;
+}
+
+message SurveyElement {
+  TextBox text_box = 1;
+  Likert likert = 2;
+  Thumbs thumbs = 3;
+}
+
+message SurveyValue {
+  string value_id = 1;
+  string label = 2;
+}
+
+message SystemKillSwitchDetails {
+  string feature_name = 1;
+}
+
+message TeamPublicSettings {
+  bool allow_public_share = 1;
+}
+
+message TextBox {
+  string id = 1;
+  string placeholder = 2;
+  TextBoxSize size = 3;
+}
+
+message TextToSpeechV2Request {
+  repeated ArticleItem articles = 1;
+  bool sanitize = 2;
+  string voice = 3;
+  bool enable_alignment = 4;
+}
+
+message Throttle {
+  string content_id = 1;
+  BreakV1 break_v1 = 2;
+}
+
+message Thumbs {
+  string id = 1;
+  repeated string labels = 2;
+  repeated SurveyValue values = 3;
+}
+
+message ToolCallFailedDetails {
+  string tool_usage_card_id = 1;
+  string tool_name = 2;
+}
+
+message ToolDefinition {
+  string name = 1;
+  string args = 2;
+}
+
+message ToolOverrides {
+  bool image_gen = 1;
+  bool web_search = 2;
+  bool x_search = 3;
+  bool x_media_search = 4;
+  bool trends_search = 5;
+  bool x_post_analyze = 6;
+  bool video_gen = 7;
+  bool audio_gen = 8;
+  bool gmail_search = 9;
+  bool google_calendar_search = 10;
+  bool google_drive_search = 11;
+  bool outlook_search = 12;
+  bool outlook_calendar_search = 13;
+  bool document_search = 14;
+}
+
+message ToolUsageResult {
+  string tool_usage_card_id = 1;
+  WebSearchResults web_search_results = 2;
+  XSearchResults x_search_results = 3;
+  RagResults rag_results = 4;
+  ConnectorSearchResults connector_search_results = 5;
+  CollectionSearchResults collection_search_results = 6;
+  MemoryV2UpdateResult memory_v2_update_result = 7;
+  CodeExecutionResult code_execution_result = 8;
+}
+
+message ToolWithScope {
+  ToolPermissionScope scope = 1;
+  ToolDefinition definition = 2;
+}
+
+message TopVoiceEntry {
+  VoiceMetadata voice = 1;
+  int64 save_count = 2;
+}
+
+message TranscribeRequest {
+  string audio_b64 = 1;
+  string format = 2;
+  string prefix = 3;
+  int32 beam_size = 4;
+  float patience = 5;
+  int32 batch_size = 6;
+}
+
+message TranscribeResponse {
+  repeated TranscriptionSegment segments = 1;
+}
+
+message TranscriptionSegment {
+  float start = 1;
+  float end = 2;
+  repeated WordScore words = 3;
+  string language_code = 4;
+}
+
+message TriggerMediaSearchIndexRequest {
+}
+
+message TriggerMediaSearchIndexResponse {
+  MediaSearchIndexStatus status = 1;
+  int32 item_count = 2;
+}
+
+message TtsMultipartChunk {
+  bytes data_ = 1;
+  string content_type = 2;
+}
+
+message UiLayout {
+  enum Effort {
+    UNSPECIFIED = 0;
+    LOW = 1;
+    HIGH = 2;
+    AUTO = 3;
+  }
+
+  ReasoningUiLayout reasoning_ui_layout = 1;
+  bool will_think_long = 2;
+  UiLayout.Effort effort = 3;
+  string steer_model_id = 4;
+  repeated string rollout_ids = 5;
+}
+
+message UnitConversionTool {
+  string kind = 1;
+  string source_unit = 2;
+  string source_value = 3;
+  string target_unit = 4;
+  string target_value = 5;
+  string unit_type = 6;
+}
+
+message UnlikeMediaPostRequest {
+  string id = 1;
+  string folder_id = 2;
+}
+
+message UnlikeMediaPostResponse {
+}
+
+message UnsaveVoiceRequest {
+  string voice_id = 1;
+}
+
+message UnsaveVoiceResponse {
+  bool success = 1;
+}
+
+message UpdateArtifactInlineStatusRequest {
+  string artifact_id = 1;
+  string artifact_version_id = 2;
+  ArtifactInlineStatusType inline_status = 3;
+}
+
+message UpdateArtifactInlineStatusResponse {
+  string artifact_version_id = 1;
+}
+
+message UpdateArtifactRequest {
+  string artifact_id = 1;
+  string full_artifact = 2;
+  string artifact_diff = 3;
+  string artifact_version_id = 4;
+}
+
+message UpdateArtifactResponse {
+  string artifact_version_id = 1;
+}
+
+message UpdateCanvasDocumentRequest {
+  string id = 1;
+  string name = 2;
+  int32 sort_order = 3;
+  google.protobuf.Struct metadata = 4;
+}
+
+message UpdateCanvasDocumentResponse {
+  CanvasDocument document = 1;
+}
+
+message UpdateCanvasNodeRequest {
+  CanvasNode node = 1;
+}
+
+message UpdateCanvasNodeResponse {
+  CanvasNode node = 1;
+}
+
+message UpdateConversationRequest {
+  string conversation_id = 1;
+  string title = 2;
+  bool starred = 3;
+}
+
+message UpdateFeatureControlsRequest {
+  string team_id = 1;
+  FeatureControls features = 2;
+  FieldMask update_mask = 3;
+}
+
+message UpdateMediaFolderRequest {
+  string id = 1;
+  string name = 2;
+}
+
+message UpdateMediaFolderResponse {
+  MediaFolder folder = 1;
+}
+
+message UpdateMediaProjectRequest {
+  MediaProject project = 1;
+}
+
+message UpdateMediaProjectResponse {
+  MediaProject project = 1;
+}
+
+message UpdateOrganizationAdminControlsRequest {
+  OrganizationAdminControls controls = 1;
+  FieldMask update_mask = 2;
+}
+
+message UpdatePipelineTemplateRequest {
+  string template_id = 1;
+  string name = 2;
+  string description = 3;
+  string thumbnail_url = 6;
+  string preview_url = 7;
+  string spec_json = 8;
+  bool is_featured = 9;
+  int32 sort_order = 10;
+  bool anonymous = 11;
+}
+
+message UpdatePipelineTemplateResponse {
+  PipelineTemplateProto template = 1;
+}
+
+message UpdateUserMemoryBlurbRequest {
+  string memory_content = 1;
+}
+
+message UpdateUserMemoryBlurbResponse {
+  string memory_content = 1;
+}
+
+message UpdateVoicePersonalityRequest {
+  string voice_id = 1;
+  string personality_preset_id = 2;
+  string personality_custom_prompt = 3;
+}
+
+message UpdateVoicePersonalityResponse {
+  VoiceMetadata metadata = 1;
+}
+
+message UpdateVoiceVisibilityRequest {
+  string voice_id = 1;
+  VoiceVisibility visibility = 2;
+}
+
+message UpdateVoiceVisibilityResponse {
+  VoiceMetadata metadata = 1;
+}
+
+message UploadFileCompleteRequest {
+  PresignedCompletion presigned = 1;
+  DirectUploadData direct_upload = 2;
+}
+
+message UploadFileCompleteResponse {
+  string upload_id = 1;
+  FileMetadata file_metadata = 2;
+  string terminal_error = 3;
+}
+
+message UploadFileInitRequest {
+  string file_name = 1;
+  string file_mime_type = 2;
+  UploadedFileSourceType file_source = 3;
+  string third_party_file_id = 4;
+  int64 size_bytes = 5;
+  bool resumable_supported = 6;
+  bool multipart_supported = 7;
+}
+
+message UploadFileInitResponse {
+  string upload_id = 1;
+  string asset_id = 2;
+  bytes expires_at = 3;
+  UploadMethod upload_method = 4;
+  SinglePutDetails single_put = 5;
+  ResumableUploadDetails resumable = 6;
+  MultipartUploadDetails multipart = 7;
+}
+
+message UploadFilePatchRequest {
+  string upload_id = 1;
+  repeated CompletedPartInfo completed_parts = 2;
+}
+
+message UploadFileRequest {
+  string file_name = 1;
+  string file_mime_type = 2;
+  bytes content = 3;
+  bool make_public = 4;
+  UploadedFileSourceType file_source = 5;
+  string third_party_file_id = 6;
+  string workspace_id = 7;
+}
+
+message UploadUserSkillRequest {
+  string name = 1;
+  string filename = 2;
+  bytes content = 3;
+}
+
+message UpscaleVideoRequest {
+  string video_id = 1;
+  UpscaleTargetResolution target_resolution = 2;
+}
+
+message UpscaleVideoResponse {
+  string hd_media_url = 1;
+}
+
+message UsageLimitExhaustedDetails {
+  bytes reset_time = 1;
+  UsagePeriodType period_type = 2;
+  bool is_top_up_available = 3;
+  UsageUpgradeTier upgrade_tier = 4;
+}
+
+message UsageLimitReachedDetails {
+}
+
+message UsagePoolExhaustedDetails {
+}
+
+message UserInteractionStatus {
+  bool like_status = 1;
+}
+
+message UserIssueReportRequest {
+  string reportJSONString = 1;
+  string reportWithDumpJSONString = 2;
+  string report = 3;
+  UserFeedbackType feedback_type = 4;
+  repeated FeedbackAttachment attachments = 5;
+}
+
+message UserMemory {
+  string convo_id = 1;
+  string convo_summary = 2;
+}
+
+message UserMemoryV2 {
+  int64 id = 1;
+  string content = 2;
+  string companion_id = 3;
+  bytes created_at = 4;
+  bytes updated_at = 5;
+  bytes expires_at = 6;
+}
+
+message UserPromptTooLongDetails {
+}
+
+message UserSettings {
+  bool exclude_from_training = 1;
+  google.protobuf.Value preferences = 2;
+  bool allow_x_personalization = 3;
+  bool enable_memory = 4;
+  bool allow_share_indexing = 5;
+  bool allow_companion_notifications = 6;
+  bool allow_auto_share = 7;
+  repeated AgentCustomization agent_customizations = 8;
+  bool allow_grok_finished_notification = 10;
+}
+
+message UserSkillMetadata {
+  string name = 1;
+  string description = 2;
+  bool enabled = 3;
+  uint64 total_bytes = 4;
+  uint32 file_count = 5;
+  repeated SkillFileInfo files = 6;
+  string created_at = 7;
+  string updated_at = 8;
+  string upload_format = 9;
+  string skill_md_content = 10;
+}
+
+message VerifyPassphraseRequest {
+  string passphrase_id = 1;
+  string passphrase_audio_b64 = 2;
+  string passphrase_audio_format = 3;
+  string reference_audio_b64 = 4;
+  string reference_audio_format = 5;
+}
+
+message VerifyPassphraseResponse {
+  bool success = 1;
+  float similarity_score = 2;
+}
+
+message Video {
+  string url = 1;
+  int32 height = 2;
+  int32 width = 3;
+  int32 duration_seconds = 4;
+  Image thumbnail = 5;
+}
+
+message VoiceMetadata {
+  string voice_id = 1;
+  string name = 2;
+  string user_id = 3;
+  string gcs_path = 4;
+  float duration_seconds = 5;
+  int32 sample_rate = 6;
+  string sha256_hash = 7;
+  bytes created_at = 8;
+  bytes updated_at = 9;
+  bytes deleted_at = 10;
+  VoiceVisibility visibility = 11;
+  string personality_preset_id = 12;
+  string personality_custom_prompt = 13;
+  bool approved = 14;
+}
+
+message WebSearchResult {
+  string url = 1;
+  string title = 2;
+  string preview = 4;
+  string search_engine_text = 5;
+  string description = 6;
+  string site_name = 7;
+  string metadata_title = 8;
+  string creator = 9;
+  string image = 10;
+  string favicon = 11;
+  string citation_id = 12;
+}
+
+message WebSearchResults {
+  repeated WebSearchResult results = 1;
+}
+
+message WordScore {
+  string word = 1;
+  float align_score = 2;
+  int32 start_ms = 3;
+  int32 end_ms = 4;
+}
+
+message XPost {
+  string username = 1;
+  string name = 2;
+  string text = 3;
+  bytes create_time = 4;
+  string profile_image_url = 5;
+  string post_id = 6;
+  string citation_id = 8;
+  XPost parent = 9;
+  string parent_post_id = 10;
+  string quote_post_id = 11;
+  XPost quote = 12;
+  int32 view_count = 13;
+  string community_note = 14;
+  string verified_type = 15;
+  XPostPublicMetrics public_metrics = 16;
+  XPostEntities entities = 17;
+  string text_markdown = 18;
+}
+
+message XPostEntities {
+  repeated XPostMedia media = 1;
+  repeated XPostUrl urls = 2;
+  repeated XPostHashtag hashtags = 3;
+  repeated XPostMention mentions = 4;
+}
+
+message XPostHashtag {
+  string tag = 1;
+  int32 start = 2;
+  int32 end = 3;
+}
+
+message XPostMedia {
+  string media_key = 1;
+  string type = 2;
+  string url = 3;
+  int32 width = 4;
+  int32 height = 5;
+  string preview_image_url = 6;
+  repeated XPostMediaVariant variants = 7;
+}
+
+message XPostMediaVariant {
+  int32 bit_rate = 1;
+  string content_type = 2;
+  string url = 3;
+}
+
+message XPostMention {
+  string username = 1;
+  int32 start = 2;
+  int32 end = 3;
+}
+
+message XPostPublicMetrics {
+  int32 view_count = 1;
+  int32 like_count = 2;
+  int32 reply_count = 3;
+  int32 retweet_count = 4;
+  int32 quote_count = 5;
+}
+
+message XPostUrl {
+  string url = 1;
+  string expanded_url = 2;
+  string display_url = 3;
+  int32 start = 4;
+  int32 end = 5;
+}
+
+message XSearchResults {
+  repeated XPost results = 1;
+}

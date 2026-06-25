@@ -1,0 +1,524 @@
+syntax = "proto3";
+
+package connectors_manager;
+
+import "google/protobuf/empty.proto";
+
+enum AssetProcessingStatus {
+  ASSET_PROCESSING_STATUS_UNKNOWN = 0;
+  ASSET_PROCESSING_STATUS_INDEXING = 1;
+  ASSET_PROCESSING_STATUS_DONE = 2;
+  ASSET_PROCESSING_STATUS_ERROR = 3;
+}
+
+enum ConnectorAttribute {
+  CONNECTOR_ATTRIBUTE_UNKNOWN = 0;
+  CONNECTOR_ATTRIBUTE_REQUIRES_DYNAMIC_MCP_TOOL_CALL = 1;
+  CONNECTOR_ATTRIBUTE_SUPPORTS_DOCUMENT_SEARCH = 2;
+}
+
+enum ConnectorScope {
+  CONNECTOR_SCOPE_UNKNOWN = 0;
+  CONNECTOR_SCOPE_ORGANIZATION = 1;
+  CONNECTOR_SCOPE_TEAM = 2;
+  CONNECTOR_SCOPE_USER = 3;
+}
+
+enum ConnectorType {
+  CONNECTOR_TYPE_UNKNOWN = 0;
+  CONNECTOR_TYPE_GOOGLE_DRIVE = 1;
+  CONNECTOR_TYPE_TEST = 2;
+  CONNECTOR_TYPE_NOTION = 3;
+  CONNECTOR_TYPE_SLACK = 4;
+  CONNECTOR_TYPE_GMAIL = 5;
+  CONNECTOR_TYPE_MCP = 6;
+  CONNECTOR_TYPE_SHAREPOINT = 7;
+  CONNECTOR_TYPE_GOOGLE_CALENDAR = 8;
+  CONNECTOR_TYPE_OUTLOOK = 9;
+  CONNECTOR_TYPE_MICROSOFT_TEAMS = 10;
+  CONNECTOR_TYPE_OUTLOOK_CALENDAR = 11;
+  CONNECTOR_TYPE_ONE_DRIVE = 12;
+  CONNECTOR_TYPE_SHAREPOINT_RW = 13;
+  CONNECTOR_TYPE_GOOGLE_DRIVE_SYNC = 14;
+}
+
+enum OAuthStrategy {
+  OAUTH_STRATEGY_UNKNOWN = 0;
+  OAUTH_STRATEGY_NONE = 1;
+  OAUTH_STRATEGY_DCR = 2;
+  OAUTH_STRATEGY_CIMD = 3;
+  OAUTH_STRATEGY_BYO = 4;
+}
+
+message AssetSummary {
+  string asset_id = 1;
+  string title = 2;
+  string original_mime_type = 3;
+  string indexed_mime_type = 4;
+  string view_url = 6;
+  AssetProcessingStatus status = 7;
+}
+
+message CatalogConnector {
+  string catalog_id = 1;
+  string display_name = 2;
+  string description = 3;
+  string icon_url = 4;
+  string category = 5;
+  repeated CatalogToolSummary discovered_tools = 6;
+  string server_url = 7;
+  uint64 user_count = 8;
+  string connector_id = 9;
+}
+
+message CatalogToolSummary {
+  string name = 1;
+  string description = 2;
+}
+
+message ChangeStatistics {
+  int64 values = 1;
+}
+
+message Connector {
+  string connector_id = 1;
+  string team_id = 2;
+  string name = 3;
+  string description = 4;
+  ConnectorType connector_type = 5;
+  PublicUser create_user = 6;
+  bytes create_time = 7;
+  PublicUser modify_user = 8;
+  bytes modify_time = 9;
+  repeated PublicUser allowed_users = 10;
+  bytes next_sync_after = 11;
+  GoogleDriveConfig google_drive_config = 12;
+  ConnectorConfig connector_config = 13;
+  bool has_valid_oauth_tokens = 14;
+  ConnectorScope scope = 15;
+  string scope_id = 16;
+  string connector_catalog_id = 17;
+}
+
+message ConnectorAndLatestSync {
+  Connector connector = 1;
+  bytes latest_successful_sync_start_time = 2;
+  ConnectorSync latest_sync = 3;
+  google.protobuf.Empty no_sync = 4;
+  google.protobuf.Empty pending_first_sync = 5;
+  SyncInfo sync = 6;
+}
+
+message ConnectorConfig {
+  GoogleDriveConfig google_drive_config = 1;
+  SlackConfig slack_config = 2;
+  string test_config = 3;
+  NotionConfig notion_config = 4;
+  GmailConfig gmail_config = 5;
+  McpConfig mcp_config = 6;
+  SharepointConfig sharepoint_config = 7;
+  GoogleCalendarConfig google_calendar_config = 8;
+  OutlookConfig outlook_config = 9;
+  MicrosoftTeamsConfig microsoft_teams_config = 10;
+  OutlookCalendarConfig outlook_calendar_config = 11;
+}
+
+message ConnectorSync {
+  string connector_sync_id = 1;
+  string connector_id = 2;
+  bytes start_time = 3;
+  bytes heartbeat_time = 4;
+  bytes end_time = 5;
+  string error = 6;
+  ChangeStatistics stats = 7;
+}
+
+message ConnectorSyncLogEntry {
+  bytes create_time = 1;
+  string origin = 2;
+  string message = 3;
+}
+
+message ConnectorV2 {
+  string connector_id = 1;
+  ConnectorType connector_type = 2;
+  bool auth_valid = 3;
+  ConnectorConfig connector_config = 4;
+  string name = 5;
+  string icon_url = 6;
+  string catalog_id = 7;
+  string description = 8;
+  string category = 9;
+  string server_url = 10;
+  string oauth_connector_id = 11;
+}
+
+message CreateConnectorRequest {
+  string name = 1;
+  string description = 2;
+  ConnectorType connector_type = 3;
+  repeated string allowed_user_ids = 4;
+  string team_id = 5;
+  GoogleDriveConfig google_drive_config = 6;
+  string config = 7;
+  ConnectorConfig connector_config = 8;
+  ConnectorScope scope = 9;
+  string scope_id = 10;
+  string connector_catalog_id = 11;
+  bool confirm_override = 12;
+}
+
+message DeleteOauthConnectorRequest {
+  string team_id = 1;
+  ConnectorType filter_connector_type = 3;
+  string connector_id = 4;
+  ConnectorScope scope = 5;
+  string scope_id = 6;
+}
+
+message DiscoveredOAuthMetadata {
+  string issuer = 1;
+  string authorization_endpoint = 2;
+  string token_endpoint = 3;
+  string registration_endpoint = 4;
+  repeated string scopes_supported = 5;
+  repeated string grant_types_supported = 6;
+  repeated string response_types_supported = 7;
+  repeated string code_challenge_methods_supported = 8;
+}
+
+message ExchangeCodeRequest {
+  string oauth_cookie = 1;
+  string code = 2;
+  string state = 3;
+  string team_id = 4;
+  string connector_id = 5;
+  ConnectorScope scope = 6;
+  string scope_id = 7;
+}
+
+message GetAuthUrlRequest {
+  string redirect_url = 2;
+  string team_id = 3;
+  ConnectorType filter_connector_type = 5;
+  string connector_id = 6;
+  ConnectorScope scope = 7;
+  string scope_id = 8;
+}
+
+message GetAuthUrlResponse {
+  string auth_url = 1;
+  string oauth_cookie = 2;
+}
+
+message GetConnectorRequest {
+  string id = 1;
+  bool return_create_user = 2;
+  bool return_modify_user = 3;
+  bool return_allowed_users = 4;
+  string team_id = 5;
+  uint32 sync_history_length = 6;
+  ConnectorScope scope = 7;
+  string scope_id = 8;
+}
+
+message GetConnectorResponse {
+  Connector connector = 1;
+  bytes latest_successful_sync_start_time = 2;
+  repeated ConnectorSync sync_history = 3;
+  google.protobuf.Empty no_sync = 4;
+  google.protobuf.Empty pending_first_sync = 5;
+  SyncInfo sync = 6;
+}
+
+message GetConnectorSyncLogsRequest {
+  string team_id = 1;
+  string connector_sync_id = 2;
+  ConnectorScope scope = 3;
+  string scope_id = 4;
+}
+
+message GetConnectorSyncLogsResponse {
+  repeated ConnectorSyncLogEntry entries = 1;
+}
+
+message GetTeamHistoryRequest {
+  string team_id = 1;
+  ConnectorScope scope = 2;
+  string scope_id = 3;
+}
+
+message GetTeamHistoryResponse {
+  repeated TeamHistoryItem items = 1;
+}
+
+message GetValidAccessTokenRequest {
+  ConnectorScope scope = 1;
+  string scope_id = 2;
+  string connector_id = 3;
+}
+
+message GetValidAccessTokenResponse {
+  string access_token = 1;
+}
+
+message GmailConfig {
+}
+
+message GoogleCalendarConfig {
+}
+
+message GoogleDriveConfig {
+  string workspace_domain_name = 1;
+  bool require_explicit_access = 2;
+}
+
+message InvalidateOAuthTokenRequest {
+  string connector_id = 1;
+}
+
+message ListAssetsForConnectorRequest {
+  string connector_id = 1;
+  string team_id = 2;
+  uint32 page_size = 3;
+  string page_token = 4;
+  ConnectorScope scope = 5;
+  string scope_id = 6;
+}
+
+message ListAssetsForConnectorResponse {
+  repeated AssetSummary assets = 1;
+  string connector_id = 2;
+  uint32 total_count = 3;
+  string next_page_token = 4;
+}
+
+message ListAvailableConnectorsRequestV2 {
+}
+
+message ListAvailableConnectorsResponseV2 {
+  repeated CatalogConnector connectors = 1;
+  repeated ConnectorV2 connectors_v2 = 2;
+}
+
+message ListCatalogConnectorsRequest {
+}
+
+message ListCatalogConnectorsResponse {
+  repeated CatalogConnector catalog_connectors = 1;
+}
+
+message ListConnectorsForUserRequest {
+  string team_id = 1;
+  ConnectorScope scope = 2;
+  string scope_id = 3;
+}
+
+message ListConnectorsForUserResponse {
+  repeated PublicConnectorForUser connectors = 1;
+}
+
+message ListConnectorsRequest {
+  bool return_create_user = 1;
+  bool return_modify_user = 2;
+  string team_id = 3;
+  ConnectorScope scope = 4;
+  string scope_id = 5;
+}
+
+message ListConnectorsRequestV2 {
+  bool refresh_token = 2;
+}
+
+message ListConnectorsResponse {
+  repeated ConnectorAndLatestSync connectors = 1;
+}
+
+message ListConnectorsResponseV2 {
+  repeated ConnectorV2 connectors = 1;
+}
+
+message ListMcpDiscoveredToolsRequest {
+  string scope_id = 2;
+  repeated string connector_ids = 3;
+  ConnectorScope scope = 4;
+  bool include_all_tools = 5;
+  bool admin = 6;
+}
+
+message ListMcpDiscoveredToolsResponse {
+  repeated McpTool mcp_tools = 1;
+  repeated string connectors_needing_reauth = 2;
+  repeated string connector_ids_needing_reauth = 3;
+}
+
+message ListOauthConnectorsRequest {
+  string team_id = 1;
+  ConnectorType connector_type = 2;
+  ConnectorScope scope = 3;
+  string scope_id = 4;
+}
+
+message ListOauthConnectorsResponse {
+  repeated OAuthConnectorStatus status = 1;
+}
+
+message ListSharepointSitesRequest {
+  string connector_id = 1;
+  ConnectorScope scope = 2;
+  string scope_id = 3;
+}
+
+message ListSharepointSitesResponse {
+  repeated SharepointSite sites = 1;
+}
+
+message McpConfig {
+  string server_url = 5;
+  bool is_enabled = 6;
+  bool requires_oauth = 7;
+  string icon_id = 8;
+  repeated string allowed_tool_names = 9;
+  repeated string blocked_tool_names = 10;
+}
+
+message McpTool {
+  string name = 1;
+  string remote_name = 2;
+  string title = 3;
+  string description = 4;
+  string json_schema = 5;
+  string connector_id = 6;
+  string server_name = 7;
+  string server_url = 8;
+  string scope = 9;
+  string annotations_json = 10;
+  bool is_blocked = 11;
+}
+
+message MicrosoftTeamsConfig {
+}
+
+message NotionConfig {
+}
+
+message OAuthClientCredentials {
+  string client_id = 1;
+  string client_secret = 2;
+  string authorization_endpoint = 3;
+  string token_endpoint = 4;
+  repeated string scopes = 5;
+  string issuer = 6;
+  string registration_endpoint = 7;
+}
+
+message OAuthConnectorStatus {
+  ConnectorType connector_type = 1;
+  bytes create_time = 2;
+  PublicUser user = 3;
+}
+
+message OutlookCalendarConfig {
+}
+
+message OutlookConfig {
+}
+
+message PublicConnectorForUser {
+  string connector_id = 1;
+  ConnectorType connector_type = 2;
+  bool is_active_for_user = 3;
+  ConnectorSync latest_successful_sync = 4;
+  ConnectorSync latest_sync = 5;
+  ConnectorConfig connector_config = 6;
+  string name = 7;
+  repeated ConnectorAttribute attributes = 8;
+  bool needs_reauth = 9;
+}
+
+message RemoveConnectorRequest {
+  string id = 1;
+  string team_id = 2;
+  ConnectorScope scope = 3;
+  string scope_id = 4;
+}
+
+message SetMcpOauthCredentialsRequest {
+  ConnectorScope scope = 1;
+  string scope_id = 2;
+  string connector_id = 3;
+  OAuthClientCredentials credentials = 4;
+}
+
+message SetSharepointAllowedSitesRequest {
+  string connector_id = 1;
+  ConnectorScope scope = 2;
+  string scope_id = 3;
+  repeated string allowed_site_ids = 4;
+}
+
+message SetSharepointAllowedSitesResponse {
+}
+
+message SharepointConfig {
+  string tenant_id = 1;
+  repeated string allowed_site_ids = 2;
+  string auth_mode = 3;
+}
+
+message SharepointSite {
+  string id = 1;
+  string display_name = 2;
+  string name = 3;
+  string web_url = 4;
+}
+
+message SlackConfig {
+}
+
+message SyncInfo {
+  ConnectorSync latest_sync = 1;
+  bytes latest_successful_sync_start_time = 2;
+  repeated ConnectorSync sync_history = 3;
+}
+
+message TeamHistoryItem {
+  string team_id = 1;
+  bytes action_time = 2;
+  string user_id = 3;
+  string action_type = 4;
+  string action_details_json = 5;
+}
+
+message TriggerConnectorSyncRequest {
+  string connector_id = 1;
+  ConnectorScope scope = 2;
+  string scope_id = 3;
+}
+
+message TriggerConnectorSyncResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message UpdateConnectorRequest {
+  Connector connector = 1;
+  FieldMask field_mask = 2;
+  string team_id = 3;
+  ConnectorScope scope = 4;
+  string scope_id = 5;
+  repeated string allowed_tool_names = 6;
+  repeated string blocked_tool_names = 7;
+  bool admin = 8;
+}
+
+message ValidateMcpServerUrlRequest {
+  string url = 1;
+}
+
+message ValidateMcpServerUrlResponse {
+  bool is_valid = 1;
+  bool auth_required = 2;
+  OAuthStrategy oauth_strategy = 3;
+  DiscoveredOAuthMetadata discovered_oauth_metadata = 4;
+}

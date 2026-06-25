@@ -1,0 +1,1190 @@
+syntax = "proto3";
+
+package chat;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+
+enum Channel {
+  CHANNEL_UNSPECIFIED = 0;
+  CHANNEL_ASSISTANT_RESPONSE = 1;
+  CHANNEL_ASSISTANT_THINKING = 2;
+  CHANNEL_ASSISTANT_NOTETAKER_HEADER = 3;
+  CHANNEL_ASSISTANT_NOTETAKER_SUMMARY = 4;
+}
+
+enum Effort {
+  UNSPECIFIED = 0;
+  LOW = 1;
+  HIGH = 2;
+  MEDIUM = 3;
+}
+
+enum EnablePreferButtonTrigger {
+  ENABLE_PREFER_BUTTON_TRIGGER_ALWAYS = 0;
+  ENABLE_PREFER_BUTTON_TRIGGER_ONE_RESPONSE_FINISHED = 1;
+  ENABLE_PREFER_BUTTON_TRIGGER_ALL_RESPONSES_FINISHED = 2;
+}
+
+enum ImageChunkSystemErrors {
+  ERR_CODE_UNSPECIFIED = 0;
+  ERR_CHECK_IMAGE_PROMPT = 1001;
+  ERR_SUGGEST_MOD_RULES = 1002;
+  ERR_CHECK_FINAL_IMAGE = 1003;
+  ERR_CHECK_IMAGE = 1004;
+  ERR_CHECK_VIDEO = 1005;
+  ERR_RATE_LIMITED = 1006;
+  ERR_GENERATION_FAILED = 1007;
+  ERR_RENDER_PER_MESSAGE_LIMIT_EXCEEDED = 1008;
+}
+
+enum MediaRejectionReason {
+  MEDIA_REJECTION_REASON_UNSPECIFIED = 0;
+  MEDIA_REJECTION_REASON_IP = 1;
+  MEDIA_REJECTION_REASON_SAFETY = 2;
+}
+
+enum ProgressReportCategory {
+  UNKNOWN_CATEGORY = 0;
+  ATTACHMENTS_PREPROCESSING = 1;
+  HISTORY_ATTACHMENTS_PREPROCESSING = 2;
+  WEBPAGE_ATTACHMENTS_PREPROCESSING = 3;
+  HISTORY_WEBPAGE_ATTACHMENTS_PREPROCESSING = 4;
+  TOOL_PROCESSING = 5;
+  HEAVY_ROLLOUT = 6;
+}
+
+enum ProgressReportState {
+  UNKNOWN_STATE = 0;
+  PENDING = 1;
+  SUCCESS = 2;
+  FAILURE = 3;
+}
+
+enum ToolCallStatus {
+  TOOL_CALL_STATUS_IN_PROGRESS = 0;
+  TOOL_CALL_STATUS_COMPLETED = 1;
+  TOOL_CALL_STATUS_INCOMPLETE = 2;
+  TOOL_CALL_STATUS_FAILED = 3;
+}
+
+message AddMemoryTool {
+  message Args {
+    string memory = 1;
+  }
+
+  AddMemoryTool.Args args = 1;
+}
+
+message AnswerAnnotation {
+  string preview = 1;
+  string notes = 2;
+}
+
+message AnswerValues {
+  repeated string values = 1;
+}
+
+message Article {
+  ArticleResults article_results = 1;
+}
+
+message ArticleInnerResult {
+  string rest_id = 1;
+  string title = 2;
+  string plain_text = 3;
+}
+
+message ArticleResults {
+  ArticleInnerResult result = 1;
+}
+
+message Avatar {
+  string image_url = 1;
+}
+
+message BashContext {
+  string full_command = 1;
+}
+
+message BashPartialResult {
+  string output = 1;
+}
+
+message BashTool {
+  message Args {
+    string command = 1;
+    int32 timeout = 2;
+  }
+
+  BashTool.Args args = 1;
+}
+
+message BindingValues {
+  string key = 1;
+  PollValue value_ = 2;
+}
+
+message BindingValuesList {
+  repeated BindingValues binding_values = 1;
+}
+
+message BirdWatchPivot {
+  BirdWatchPivotSubtitle subtitle = 1;
+}
+
+message BirdWatchPivotSubtitle {
+  string text = 1;
+}
+
+message BrowsePageTool {
+  message Args {
+    string url = 1;
+    string instructions = 2;
+  }
+
+  BrowsePageTool.Args args = 1;
+}
+
+message BrowserNetworkDetailsTool {
+  message Args {
+    string tab_id = 1;
+    string request_id = 2;
+  }
+
+  BrowserNetworkDetailsTool.Args args = 1;
+}
+
+message BrowserTabTool {
+  message Args {
+    string url = 1;
+    string tab_id = 2;
+    string js_code = 3;
+  }
+
+  BrowserTabTool.Args args = 1;
+}
+
+message CallFinanceApiTool {
+}
+
+message CallPlacesApiTool {
+}
+
+message CallSportsApiTool {
+}
+
+message CallWeatherApiTool {
+}
+
+message Card {
+  string rest_id = 1;
+  BindingValuesList legacy = 2;
+}
+
+message ChatroomSendTool {
+  message Args {
+    string message = 1;
+    string to = 2;
+  }
+
+  ChatroomSendTool.Args args = 1;
+}
+
+message CodeExecutionResult {
+  string stdout = 1;
+  string stderr = 2;
+  int32 exit_code = 3;
+  bool command_timed_out = 4;
+}
+
+message CodeExecutionTool {
+  message Args {
+    string code = 1;
+    string language = 2;
+  }
+
+  CodeExecutionTool.Args args = 1;
+}
+
+message CollectionSearchResultItem {
+  string file_id = 1;
+  string name = 2;
+  int64 size_bytes = 3;
+  string content_type = 4;
+  bytes created_at = 5;
+  bytes expires_at = 6;
+  string upload_status = 7;
+  string upload_error_message = 8;
+  string processing_status = 9;
+  string file_path = 10;
+  string url = 11;
+  string query = 12;
+  string chunk_content = 13;
+  string chunk_id = 14;
+  double score = 15;
+}
+
+message CollectionsSearchTool {
+  message Args {
+    string query = 1;
+  }
+
+  CollectionsSearchTool.Args args = 1;
+}
+
+message ConnectorSearchResultItem {
+  string file_id = 1;
+  string connector_type = 2;
+  string query = 3;
+  string document_type = 4;
+  string document_title = 5;
+  string document_source_url = 6;
+  string chunk_content = 7;
+  string chunk_id = 8;
+  string asset_id = 9;
+  double score = 10;
+}
+
+message ConversationSearchTool {
+}
+
+message DeleteMemoryTool {
+  message Args {
+    string memory = 1;
+  }
+
+  DeleteMemoryTool.Args args = 1;
+}
+
+message DocumentSearchResult {
+  repeated ConnectorSearchResultItem connector_results = 1;
+  repeated CollectionSearchResultItem collection_results = 2;
+}
+
+message DocumentSearchTool {
+  message Args {
+    string query = 1;
+  }
+
+  DocumentSearchTool.Args args = 1;
+}
+
+message EditContext {
+  enum Kind {
+    KIND_UNSPECIFIED = 0;
+    KIND_SEARCH_REPLACE = 1;
+    KIND_WRITE_NEW = 2;
+    KIND_WRITE_OVERWRITE = 3;
+    KIND_APPLY_PATCH = 4;
+    KIND_DELETE = 5;
+  }
+
+  repeated string file_paths = 1;
+  EditContext.Kind kind = 2;
+}
+
+message EditFileTool {
+  message Args {
+    string file_path = 1;
+    string old_string = 2;
+    string new_string = 3;
+    bool replace_all = 4;
+  }
+
+  EditFileTool.Args args = 1;
+}
+
+message EditImageTool {
+  message Args {
+    string prompt = 1;
+    string image_id = 2;
+    string file_path = 3;
+  }
+
+  EditImageTool.Args args = 1;
+}
+
+message EditMemoryTool {
+  message Args {
+    string memory = 1;
+  }
+
+  EditMemoryTool.Args args = 1;
+}
+
+message EditSpreadsheetTool {
+}
+
+message FileMention {
+  enum FileSource {
+    FILE_SOURCE_UNSPECIFIED = 0;
+    FILE_SOURCE_GROK = 1;
+  }
+
+  string file_id = 1;
+  string file_name = 2;
+  string label = 3;
+  FileMention.FileSource source = 4;
+  string source_url = 5;
+}
+
+message FilePreviewStart {
+  string file_name = 1;
+  string mime_type = 2;
+}
+
+message FollowUpSuggestion {
+  FollowUpSuggestionProperties properties = 1;
+  string label = 2;
+  ToolOverrides tool_overrides = 3;
+}
+
+message FollowUpSuggestionProperties {
+  string message_type = 1;
+  string follow_up_type = 2;
+}
+
+message FollowUpSuggestions {
+  repeated FollowUpSuggestion suggestions = 1;
+}
+
+message FunctionCall {
+  string name = 1;
+  string arguments = 2;
+}
+
+message GenerateImageTool {
+  message Args {
+    string prompt = 1;
+    string orientation = 2;
+  }
+
+  GenerateImageTool.Args args = 1;
+}
+
+message GeneratedImageStart {
+  enum Layout {
+    LAYOUT_UNSPECIFIED = 0;
+    LAYOUT_BLOCK = 1;
+    LAYOUT_INLINE = 2;
+  }
+
+  enum Orientation {
+    ORIENTATION_UNSPECIFIED = 0;
+    ORIENTATION_PORTRAIT = 1;
+    ORIENTATION_LANDSCAPE = 2;
+  }
+
+  string prompt = 1;
+  GeneratedImageStart.Orientation orientation = 2;
+  GeneratedImageStart.Layout layout = 3;
+}
+
+message GeneratedVideoStart {
+  string prompt = 1;
+  string aspect_ratio = 2;
+}
+
+message GmailSearchTool {
+}
+
+message GoogleCalendarSearchTool {
+}
+
+message GoogleDriveReadFileTool {
+}
+
+message GoogleDriveSearchTool {
+}
+
+message ImageChunk {
+  string imageUuid = 1;
+  string imageUrl = 2;
+  int32 seq = 3;
+  int32 progress = 4;
+  bool moderated = 5;
+  ImagePrompt imagePrompt = 6;
+  string mediaId = 7;
+  int32 imageScore = 8;
+  string imageTitle = 9;
+  int32 imageIndex = 10;
+  string imageModel = 11;
+  string imageReference = 12;
+  bool rRated = 13;
+  int32 sideBySideIndex = 14;
+  Resolution resolution = 15;
+  bool isRootRRated = 16;
+  bool isRootUserUploaded = 17;
+  bool isRootCelebrity = 18;
+  bool isRootChild = 19;
+  repeated string imageReferences = 20;
+  bool hasWatermark = 21;
+  string applied_moderation_rule = 22;
+  ImageChunkSystemErrors systemErrCode = 23;
+  bool isShadow = 24;
+  MediaRejectionReason rejection_reason = 25;
+}
+
+message ImagePrompt {
+  string modelName = 1;
+  string prompt = 2;
+  string upsampledPrompt = 3;
+}
+
+message ImageResult {
+  string id = 1;
+  string thumbnail = 2;
+  string source = 3;
+  string title = 4;
+  string link = 5;
+  string original = 6;
+  int64 original_width = 7;
+  int64 original_height = 8;
+  string description = 9;
+  bool disallow_editing = 10;
+  string source_x_post_id = 11;
+  string file_path = 12;
+}
+
+message ImageSearchTool {
+  message Args {
+    string image_description = 1;
+  }
+
+  ImageSearchTool.Args args = 1;
+}
+
+message InnerNoteTweet {
+  NoteTweetText result = 1;
+}
+
+message InputChunk {
+  InputChunkMetadata metadata = 1;
+  UserText text = 2;
+  Mention mention = 3;
+  UserInputResponse user_input_response = 4;
+}
+
+message InputChunkMetadata {
+}
+
+message LegacyPostInfo {
+  int32 reply_count = 1;
+  int32 retweet_count = 2;
+  int32 quote_count = 3;
+  int32 bookmark_count = 4;
+  string quoted_status_id_str = 5;
+  repeated int32 display_text_range = 6;
+  string conversation_id = 7;
+}
+
+message McpTool {
+  string tool_name = 1;
+  string tool_args_json = 2;
+  string connector_id = 3;
+  string connector_name = 4;
+  string connector_catalog_id = 5;
+  bool read_only_hint = 6;
+  bool destructive_hint = 7;
+  bool idempotent_hint = 8;
+  bool open_world_hint = 9;
+  google.protobuf.Struct meta = 10;
+  string tool_result_json = 11;
+  string connector_icon_url = 12;
+}
+
+message MediaEntity {
+  string type = 1;
+  string media_url_https = 2;
+  VideoInfo video_info = 3;
+}
+
+message Mention {
+  FileMention file_mention = 1;
+  SkillMention skill_mention = 2;
+}
+
+message NoteTweet {
+  InnerNoteTweet note_tweet_results = 1;
+}
+
+message NoteTweetText {
+  string text = 1;
+}
+
+message OpenPageTool {
+  message Args {
+    string url = 1;
+    int32 start_line = 2;
+    string pattern = 3;
+  }
+
+  OpenPageTool.Args args = 1;
+}
+
+message OutputChunk {
+  OutputChunkMetadata metadata = 1;
+  Text text = 2;
+  UserInputRequest user_input_request = 3;
+  FollowUpSuggestions follow_up_suggestions = 4;
+  UILayout ui_layout = 5;
+  ProgressReport progress_report = 6;
+  ToolUsageCard tool_usage_card = 100;
+  ToolResult tool_result = 101;
+  ToolPartialResult tool_partial_result = 102;
+  ToolCall client_tool_call = 103;
+  RenderStart render_start = 200;
+  RenderCitation render_citation = 201;
+  RenderSearchedImage render_searched_image = 202;
+  RenderGeneratedImage render_generated_image = 203;
+  RenderEditedImage render_edited_image = 204;
+  RenderGeneratedVideo render_generated_video = 205;
+  RenderFilePreview render_file_preview = 206;
+  RenderImagineMediaBoard render_imagine_media_board = 207;
+}
+
+message OutputChunkMetadata {
+  string rollout_id = 1;
+  int32 step_id = 2;
+}
+
+message PdfBrowseTool {
+}
+
+message PdfSearchTool {
+}
+
+message PermissionAnswer {
+  enum Outcome {
+    OUTCOME_UNSPECIFIED = 0;
+    OUTCOME_APPROVE = 1;
+    OUTCOME_REJECT = 2;
+    OUTCOME_ALWAYS_APPROVE = 3;
+    OUTCOME_ALWAYS_REJECT = 4;
+  }
+
+  PermissionAnswer.Outcome outcome = 1;
+  string followup_message = 2;
+  google.protobuf.Empty tool_scope = 3;
+  string bash_command = 4;
+  string server_prefix = 5;
+  string domain = 6;
+}
+
+message PollValue {
+  string string_value = 1;
+  bool boolean_value = 2;
+  string type = 3;
+}
+
+message PostInfo {
+  string created_at = 1;
+  string full_text = 2;
+}
+
+message PostInnerResult {
+  string rest_id = 1;
+  UserResult author_info = 2;
+  PostInfo data_ = 3;
+  LegacyPostInfo extended_data = 4;
+  int32 favorite_count = 5;
+  ViewCount views = 6;
+  repeated MediaEntity media = 7;
+  Article article = 8;
+  Card card = 9;
+  repeated MediaEntity media_entities2 = 10;
+  BirdWatchPivot birdwatch_pivot = 11;
+  QuotedTweetResults quoted_tweet_results = 12;
+  LegacyPostInfo legacy = 13;
+  ReplyToResults reply_to_results = 14;
+  NoteTweet note_tweet = 15;
+  bool is_target_post = 16;
+  repeated XPostUrls urls = 17;
+  string created_at = 18;
+}
+
+message ProfileBio {
+  string description = 1;
+}
+
+message ProgressReport {
+  ProgressReportCategory category = 1;
+  ProgressReportState state = 2;
+  string message = 3;
+  float percentage = 4;
+}
+
+message Question {
+  string id = 1;
+  string text = 2;
+  repeated QuestionOption options = 3;
+  bool multi_select = 4;
+}
+
+message QuestionAnswer {
+  QuestionAnswers accepted = 1;
+  QuestionAnswers chat_about_this = 2;
+  QuestionAnswers skip_interview = 3;
+  google.protobuf.Empty cancelled = 4;
+}
+
+message QuestionAnswers {
+  AnswerValues answers = 1;
+  AnswerAnnotation annotations = 2;
+}
+
+message QuestionOption {
+  string id = 1;
+  string label = 2;
+  string description = 3;
+  string preview = 4;
+}
+
+message QuotedTweetResults {
+  string rest_id = 1;
+  PostInnerResult result = 2;
+}
+
+message ReadFileTool {
+  enum FileType {
+    FILE_TYPE_UNSPECIFIED = 0;
+    FILE_TYPE_FILE = 1;
+    FILE_TYPE_SKILL = 2;
+  }
+
+  message Args {
+    string file_path = 1;
+    int32 offset = 2;
+    int32 limit = 3;
+    ReadFileTool.FileType file_type = 4;
+    string display_name = 5;
+  }
+
+  ReadFileTool.Args args = 1;
+}
+
+message RenderCitation {
+  enum CitationKind {
+    CITATION_KIND_UNSPECIFIED = 0;
+    CITATION_KIND_WEB_PAGE = 1;
+    CITATION_KIND_X_POST = 2;
+    CITATION_KIND_X_USER = 3;
+    CITATION_KIND_X_THREAD = 4;
+    CITATION_KIND_CONNECTOR_DOCUMENT = 5;
+    CITATION_KIND_COLLECTION_DOCUMENT = 6;
+  }
+
+  string id = 1;
+  RenderCitation.CitationKind kind = 2;
+  string url = 3;
+  int32 citation_id = 4;
+}
+
+message RenderEditedImage {
+  string id = 1;
+  string query = 2;
+  ImageChunk image_chunk = 3;
+  string tool_call_id = 4;
+  string image_id = 5;
+}
+
+message RenderEditedImageTool {
+}
+
+message RenderEditedImagesTool {
+}
+
+message RenderFilePreview {
+  string id = 1;
+  string file_name = 2;
+  string content_type = 3;
+  string mime_type = 4;
+  uint64 file_size = 5;
+  string url = 6;
+  string preview_data_url = 7;
+  string preview_doc_url = 8;
+  string thumbnail_url = 9;
+  string thumbnail_dark_url = 10;
+  string file_path = 11;
+}
+
+message RenderFileTool {
+}
+
+message RenderGeneratedImage {
+  string id = 1;
+  string query = 2;
+  ImageChunk image_chunk = 3;
+  string tool_call_id = 4;
+}
+
+message RenderGeneratedImageTool {
+}
+
+message RenderGeneratedVideo {
+  string id = 1;
+  string prompt = 2;
+  string aspect_ratio = 3;
+  VideoChunk video_chunk = 4;
+  string tool_call_id = 5;
+}
+
+message RenderImagineMediaBoard {
+  string id = 1;
+  string name = 2;
+  string layout = 3;
+  repeated string asset_ids = 4;
+}
+
+message RenderInlineCitationTool {
+}
+
+message RenderSearchedImage {
+  enum Size {
+    SIZE_UNSPECIFIED = 0;
+    SIZE_SMALL = 1;
+    SIZE_LARGE = 2;
+  }
+
+  string id = 1;
+  ImageResult image = 2;
+  RenderSearchedImage.Size size = 3;
+}
+
+message RenderSearchedImageTool {
+}
+
+message RenderStart {
+  string id = 1;
+  GeneratedImageStart generated_image = 2;
+  GeneratedVideoStart generated_video = 3;
+  FilePreviewStart file_preview = 4;
+}
+
+message ReplyToResults {
+  string rest_id = 1;
+  PostInnerResult result = 2;
+}
+
+message Resolution {
+  int32 height = 1;
+  int32 width = 2;
+}
+
+message SingleThinkingDifferentSummary {
+  enum Kind {
+    KIND_UNKNOWN = 0;
+    KIND_SINGLE_THINKING_DIFFERENT_SUMMARY = 1;
+  }
+
+  SingleThinkingDifferentSummary.Kind kind = 1;
+  int32 side_by_side_single_think_index = 2;
+  EnablePreferButtonTrigger enable_prefer_button_trigger = 3;
+}
+
+message SkillMention {
+  string skill_id = 1;
+  string skill_name = 2;
+  string label = 3;
+}
+
+message Text {
+  string text = 1;
+  Channel channel = 2;
+}
+
+message ToolCall {
+  string id = 1;
+  ToolCallStatus status = 2;
+  string error_message = 3;
+  FunctionCall function = 10;
+}
+
+message ToolOverrides {
+  bool image_gen = 1;
+  bool web_search = 2;
+  bool x_search = 3;
+  bool x_media_search = 4;
+  bool trends_search = 5;
+  bool x_post_analyze = 6;
+  bool x_user_analyze = 7;
+  bool x_sentiment_search = 8;
+  bool finance_stock_card = 9;
+  bool finance_crypto_card = 10;
+  bool sports_card = 11;
+  bool video_gen = 12;
+  bool audio_gen = 13;
+  bool gmail_search = 14;
+  bool google_calendar_search = 15;
+  bool outlook_search = 16;
+  bool outlook_calendar_search = 17;
+  bool document_search = 18;
+  bool google_drive_search = 19;
+}
+
+message ToolPartialResult {
+  string tool_call_id = 1;
+  BashPartialResult bash = 2;
+  WriteFilePartialResult write_file = 3;
+}
+
+message ToolPermission {
+  enum Scope {
+    SCOPE_UNSPECIFIED = 0;
+    SCOPE_READ = 1;
+    SCOPE_WRITE = 2;
+  }
+
+  ToolPermission.Scope scope = 1;
+  BashContext bash_context = 2;
+  EditContext edit_context = 3;
+}
+
+message ToolResult {
+  string tool_call_id = 1;
+  WebSearchResult web_search = 2;
+  XPostResult x_post = 3;
+  CodeExecutionResult code_execution = 4;
+  XThreadResult x_thread = 5;
+  DocumentSearchResult document_search = 6;
+}
+
+message ToolUsageCard {
+  string tool_usage_card_id = 1;
+  WebSearchTool web_search = 2;
+  XSearchTool x_search = 3;
+  DocumentSearchTool document_search = 4;
+  CollectionsSearchTool collections_search = 5;
+  ImageSearchTool image_search = 6;
+  BrowsePageTool browse_page = 7;
+  XThreadFetchTool x_thread_fetch = 8;
+  CodeExecutionTool code_execution = 9;
+  ViewImageTool view_image = 10;
+  ViewXVideoTool view_x_video = 11;
+  RenderGeneratedImageTool render_generated_image = 12;
+  RenderEditedImageTool render_edited_image = 13;
+  RenderSearchedImageTool render_searched_image = 14;
+  RenderFileTool render_file = 15;
+  RenderInlineCitationTool render_inline_citation = 16;
+  PdfSearchTool pdf_search = 17;
+  PdfBrowseTool pdf_browse = 18;
+  AddMemoryTool add_memory = 19;
+  EditMemoryTool edit_memory = 20;
+  DeleteMemoryTool delete_memory = 21;
+  ConversationSearchTool conversation_search = 22;
+  ChatroomSendTool chatroom_send = 23;
+  WaitTool wait = 24;
+  GmailSearchTool gmail_search = 25;
+  GoogleCalendarSearchTool google_calendar_search = 26;
+  CallFinanceApiTool call_finance_api = 27;
+  CallSportsApiTool call_sports_api = 28;
+  CallWeatherApiTool call_weather_api = 29;
+  CallPlacesApiTool call_places_api = 30;
+  EditSpreadsheetTool edit_spreadsheet = 31;
+  McpTool mcp = 32;
+  XUserSearchTool x_user_search = 33;
+  RenderEditedImagesTool render_edited_images = 34;
+  string intent = 35;
+  BashTool bash = 36;
+  ReadFileTool read_file = 37;
+  WriteFileTool write_file = 38;
+  EditFileTool edit_file = 39;
+  BrowserTabTool browser_tab = 40;
+  BrowserNetworkDetailsTool browser_network_details = 41;
+  GoogleDriveSearchTool google_drive_search = 42;
+  GoogleDriveReadFileTool google_drive_read_file = 43;
+  GenerateImageTool generate_image = 44;
+  EditImageTool edit_image = 45;
+  OpenPageTool open_page = 46;
+}
+
+message UILayout {
+  string reasoning_ui_layout = 1;
+  bool will_think_long = 2;
+  Effort effort = 3;
+  string steer_model_id = 4;
+  repeated string rollout_ids = 5;
+}
+
+message UserData {
+  UserLegacyInfo core = 1;
+  Avatar avatar = 2;
+  ProfileBio profile_bio = 3;
+  int32 tweep_cred = 4;
+}
+
+message UserInnerResult {
+  UserData result = 1;
+}
+
+message UserInputRequest {
+  string tool_call_id = 1;
+  string tool_name = 2;
+  string description = 3;
+  ToolPermission tool_permission = 4;
+  UserQuestion user_question = 5;
+}
+
+message UserInputResponse {
+  string tool_call_id = 1;
+  PermissionAnswer permission_answer = 2;
+  QuestionAnswer question_answer = 3;
+}
+
+message UserLegacyInfo {
+  string name = 1;
+  string screen_name = 2;
+}
+
+message UserQuestion {
+  enum Mode {
+    MODE_UNSPECIFIED = 0;
+    MODE_DEFAULT = 1;
+    MODE_PLAN = 2;
+  }
+
+  repeated Question questions = 1;
+  UserQuestion.Mode mode = 2;
+}
+
+message UserResult {
+  UserInnerResult user_result = 1;
+}
+
+message UserText {
+  string text = 1;
+}
+
+message Variant {
+  string url = 1;
+  int32 bitrate = 2;
+}
+
+message VideoChunk {
+  string videoUuid = 1;
+  int32 progress = 2;
+  string videoData = 3;
+  repeated string audioUuids = 4;
+  repeated string audioData = 5;
+  string videoPrompt = 6;
+  string imageReference = 7;
+  repeated string audioTranscripts = 8;
+  bool moderated = 9;
+  string originalPrompt = 10;
+  string mode = 11;
+  Resolution resolution = 12;
+  bool r_rated = 13;
+  string modelName = 14;
+  string video_reference_id = 15;
+  string shot_summary = 16;
+  float duration = 17;
+  string extended_from_media_id = 18;
+  int32 suggested_moderation_rule = 19;
+  int32 side_by_side_index = 20;
+  int32 video_streaming_index = 21;
+  float video_streaming_duration = 22;
+  bool isRootRRated = 23;
+  bool isRootUserUploaded = 24;
+  bool isRootCelebrity = 25;
+  bool isRootChild = 26;
+  string resolution_name = 27;
+  string upsampled_prompt = 28;
+  string applied_moderation_rule = 29;
+  string video_url = 30;
+  MediaRejectionReason rejection_reason = 31;
+}
+
+message VideoInfo {
+  repeated int32 aspect_ratio = 1;
+  repeated Variant variants = 2;
+  int32 duration_millis = 3;
+}
+
+message ViewCount {
+  int32 count = 1;
+}
+
+message ViewImageTool {
+}
+
+message ViewXVideoTool {
+}
+
+message WaitTool {
+}
+
+message WebSearchResult {
+  repeated Webpage webpages = 1;
+}
+
+message WebSearchTool {
+  message Args {
+    string query = 1;
+  }
+
+  WebSearchTool.Args args = 1;
+}
+
+message Webpage {
+  string url = 1;
+  string title = 2;
+  string snippet = 3;
+  repeated string extra_snippets = 4;
+  string date_published = 5;
+  string date_last_crawled = 6;
+  string humanized_date = 7;
+  string language = 8;
+  string cached_page_url = 9;
+  string parsed_text = 10;
+  string time_accessed = 11;
+  string description = 12;
+  string site_name = 13;
+  string creator = 14;
+  string image = 15;
+  string images = 16;
+  bool breaking = 17;
+  string favicon = 18;
+  string favicon_base64 = 19;
+}
+
+message WriteFilePartialResult {
+  string content = 1;
+}
+
+message WriteFileTool {
+  message Args {
+    string file_path = 1;
+    string content = 2;
+  }
+
+  WriteFileTool.Args args = 1;
+}
+
+message XPost {
+  string userhandle = 1;
+  string name = 2;
+  string text = 3;
+  bytes create_time = 4;
+  string profile_image_url = 5;
+  string post_id = 6;
+  int32 favorite_count = 7;
+  int32 view_count = 8;
+  string community_note = 9;
+  string parent_post = 10;
+  string quote_post = 11;
+  repeated XPostMedia media = 12;
+  int32 thread_id = 13;
+  bool is_target_post = 14;
+  repeated XPostUrls urls = 15;
+  string verified_type = 16;
+  XPostPublicMetrics public_metrics = 17;
+  XPostEntitiesEntity entities = 18;
+}
+
+message XPostEntitiesEntity {
+  repeated XPostMediaEntity media = 1;
+  repeated XPostUrlEntity urls = 2;
+  repeated XPostHashtagEntity hashtags = 3;
+  repeated XPostMentionEntity mentions = 4;
+}
+
+message XPostHashtagEntity {
+  string tag = 1;
+  int32 start = 2;
+  int32 end = 3;
+}
+
+message XPostMedia {
+  XPostMediaImage image = 1;
+  XPostMediaVideo video = 2;
+}
+
+message XPostMediaEntity {
+  string media_key = 1;
+  string type = 2;
+  string url = 3;
+  int32 width = 4;
+  int32 height = 5;
+  string preview_image_url = 6;
+}
+
+message XPostMediaImage {
+  string type = 1;
+  string base64 = 2;
+}
+
+message XPostMediaVideo {
+  string type = 1;
+  repeated string base64_frames = 2;
+  repeated string subtitle_buckets = 3;
+  int32 max_frames = 4;
+  float duration = 5;
+  float bucket_duration = 6;
+  string fallback_image_base64 = 7;
+}
+
+message XPostMentionEntity {
+  string username = 1;
+  int32 start = 2;
+  int32 end = 3;
+}
+
+message XPostPublicMetrics {
+  int32 view_count = 1;
+  int32 like_count = 2;
+  int32 reply_count = 3;
+  int32 retweet_count = 4;
+  int32 quote_count = 5;
+}
+
+message XPostResult {
+  repeated XPost posts = 1;
+}
+
+message XPostUrlEntity {
+  string url = 1;
+  string expanded_url = 2;
+  string display_url = 3;
+  int32 start = 4;
+  int32 end = 5;
+}
+
+message XPostUrls {
+  string shortened_url = 1;
+  string unwound_url = 2;
+}
+
+message XSearchTool {
+  message Args {
+    string query = 1;
+  }
+
+  XSearchTool.Args args = 1;
+}
+
+message XThread {
+  XPost root = 1;
+  PostInnerResult target_post_inner_result = 2;
+  repeated XThread children = 3;
+}
+
+message XThreadFetchTool {
+  message Args {
+    string post_id = 1;
+  }
+
+  XThreadFetchTool.Args args = 1;
+}
+
+message XThreadResult {
+  XThread thread = 1;
+}
+
+message XUserSearchTool {
+  message Args {
+    string query = 1;
+  }
+
+  XUserSearchTool.Args args = 1;
+}

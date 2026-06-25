@@ -1,0 +1,1103 @@
+syntax = "proto3";
+
+package grok_api_v2;
+
+enum ActiveOfferType {
+  ACTIVE_OFFER_TYPE_UNSPECIFIED = 0;
+  ACTIVE_OFFER_FREE_TRIAL = 1;
+  ACTIVE_OFFER_DISCOUNT = 2;
+  ACTIVE_OFFER_PAY_UPFRONT = 3;
+}
+
+enum AfterCompletionType {
+  hosted_confirmation = 0;
+  portal_homepage = 1;
+  redirect_to_url = 2;
+}
+
+enum ArtifactInlineStatusType {
+  DEFAULT_ARTIFACT_INLINE_STATUS = 0;
+  SHOW_INLINE_ARTIFACT_INLINE_STATUS = 1;
+  SHOW_SIDEBAR_ARTIFACT_INLINE_STATUS = 2;
+}
+
+enum AssetSource {
+  SOURCE_ANY = 0;
+  SOURCE_UPLOADED = 1;
+  SOURCE_GENERATED = 2;
+}
+
+enum BillingInterval {
+  BILLING_INTERVAL_UNKNOWN = 0;
+  BILLING_INTERVAL_MONTHLY = 1;
+  BILLING_INTERVAL_YEARLY = 2;
+}
+
+enum BillingPortalFlowType {
+  payment_method_update = 0;
+  subscription_cancel = 1;
+  subscription_update = 2;
+}
+
+enum ModelMode {
+  BASE = 0;
+  THINK = 1;
+  DEEPSEARCH = 2;
+  IMAGEGEN = 3;
+}
+
+enum NotificationUiOption {
+  DEFAULT = 0;
+  EMAIL_ONLY = 1;
+  APP_ONLY = 2;
+  OFF = 3;
+}
+
+enum OfferPurpose {
+  OFFER_PURPOSE_UNSPECIFIED = 0;
+  OFFER_PURPOSE_ACQUISITION = 1;
+  OFFER_PURPOSE_RETENTION = 2;
+  OFFER_PURPOSE_WINBACK = 3;
+}
+
+enum ScheduledChangeType {
+  SCHEDULED_CHANGE_TYPE_UNSPECIFIED = 0;
+  SCHEDULED_CHANGE_TYPE_UPGRADE = 1;
+  SCHEDULED_CHANGE_TYPE_DOWNGRADE = 2;
+  SCHEDULED_CHANGE_TYPE_INTERVAL_SWITCH = 3;
+}
+
+enum StripeSubscriptionStatus {
+  STRIPE_SUBSCRIPTION_STATUS_UNKNOWN = 0;
+  STRIPE_SUBSCRIPTION_STATUS_ACTIVE = 1;
+  STRIPE_SUBSCRIPTION_STATUS_INCOMPLETE = 2;
+  STRIPE_SUBSCRIPTION_STATUS_INCOMPLETE_EXPIRED = 3;
+  STRIPE_SUBSCRIPTION_STATUS_TRIALING = 4;
+  STRIPE_SUBSCRIPTION_STATUS_PAST_DUE = 5;
+  STRIPE_SUBSCRIPTION_STATUS_CANCELED = 6;
+  STRIPE_SUBSCRIPTION_STATUS_UNPAID = 7;
+  STRIPE_SUBSCRIPTION_STATUS_PAUSED = 8;
+  STRIPE_SUBSCRIPTION_STATUS_UPDATE_IN_PROGRESS = 9;
+}
+
+enum SubscriptionProvider {
+  SUBSCRIPTION_PROVIDER_INVALID = 0;
+  SUBSCRIPTION_PROVIDER_GOOGLE = 1;
+  SUBSCRIPTION_PROVIDER_APPLE = 2;
+  SUBSCRIPTION_PROVIDER_STRIPE = 3;
+  SUBSCRIPTION_PROVIDER_X = 4;
+  SUBSCRIPTION_PROVIDER_ENTERPRISE = 5;
+  SUBSCRIPTION_PROVIDER_ADHOC = 6;
+  SUBSCRIPTION_PROVIDER_EAPI = 7;
+  SUBSCRIPTION_PROVIDER_PAYPAL = 8;
+  SUBSCRIPTION_PROVIDER_BRAINTREE = 9;
+}
+
+enum SubscriptionStatus {
+  SUBSCRIPTION_STATUS_INVALID = 0;
+  SUBSCRIPTION_STATUS_ACTIVE = 1;
+  SUBSCRIPTION_STATUS_INACTIVE = 2;
+}
+
+enum SubscriptionTier {
+  SUBSCRIPTION_TIER_INVALID = 0;
+  SUBSCRIPTION_TIER_GROK_PRO = 1;
+  SUBSCRIPTION_TIER_X_BASIC = 2;
+  SUBSCRIPTION_TIER_X_PREMIUM = 3;
+  SUBSCRIPTION_TIER_X_PREMIUM_PLUS = 4;
+  SUBSCRIPTION_TIER_SUPER_GROK_PRO = 5;
+  SUBSCRIPTION_TIER_SUPER_GROK_LITE = 6;
+}
+
+enum SubscriptionType {
+  MONTHLY = 0;
+  YEARLY = 1;
+}
+
+enum TaskCadence {
+  TASK_CADENCE_ONCE = 0;
+  TASK_CADENCE_ONCE_DAILY = 1;
+  TASK_CADENCE_ONCE_WEEKLY = 2;
+  TASK_CADENCE_ONCE_WEEKDAY = 3;
+  TASK_CADENCE_ONCE_MONTHLY = 4;
+  TASK_CADENCE_ONCE_ANNUALLY = 5;
+  TASK_CADENCE_ONCE_INSTANT = 6;
+}
+
+enum TaskNotificationDecision {
+  DISABLED = 0;
+  YES = 1;
+  NO = 2;
+}
+
+enum TaskResultStatus {
+  TASK_RESULT_PENDING = 0;
+  TASK_RESULT_SUCCESS = 1;
+  TASK_RESULT_ERROR = 2;
+}
+
+enum UploadedFileSourceType {
+  SELF_UPLOAD_FILE_SOURCE = 0;
+  GOOGLE_DRIVE_FILE_SOURCE = 1;
+  ONE_DRIVE_FILE_SOURCE = 2;
+  IMAGINE_SELF_UPLOAD_FILE_SOURCE = 3;
+  IMAGINE_GENERATED_FILE_SOURCE = 4;
+}
+
+enum UsagePeriodType {
+  USAGE_PERIOD_TYPE_UNSPECIFIED = 0;
+  USAGE_PERIOD_TYPE_MONTHLY = 1;
+  USAGE_PERIOD_TYPE_WEEKLY = 2;
+}
+
+enum UserActivity {
+  USER_ACTIVITY_UNKNOWN = 0;
+  USER_ACTIVITY_SUBSCRIBE = 1;
+  USER_ACTIVITY_CANCEL = 2;
+  USER_ACTIVITY_RESUME = 3;
+  USER_ACTIVITY_UPGRADE = 4;
+}
+
+message ActiveOffer {
+  ActiveOfferType type = 1;
+  OfferPurpose purpose = 2;
+  string campaign_id = 3;
+  bytes offer_start = 4;
+  bytes offer_end = 5;
+  string provider_offer_id = 6;
+  FreeTrialDetails free_trial = 10;
+  DiscountDetails discount = 11;
+  PayUpfrontDetails pay_upfront = 12;
+}
+
+message AddAssetRequest {
+  string workspace_id = 1;
+  string asset_id = 2;
+}
+
+message AddConversationRequest {
+  string workspace_id = 1;
+  string conversation_id = 2;
+}
+
+message AddTaskScheduleToTaskRequest {
+  string task_id = 1;
+  CreateTaskScheduleRequest schedule = 2;
+}
+
+message AppleLapsedPayment {
+  string original_transaction_id = 1;
+}
+
+message ArchiveTaskRequest {
+  string task_id = 1;
+  bool is_enabled = 3;
+}
+
+message AssetMetadata {
+  string asset_id = 1;
+  string mime_type = 2;
+  string name = 3;
+  int32 size_bytes = 4;
+  bytes create_time = 5;
+  bytes last_use_time = 6;
+  string summary = 7;
+  string preview_image_key = 8;
+  string key = 10;
+  string aux_keys = 11;
+  string response_id = 12;
+  AssetSource source = 13;
+  bool is_deleted = 14;
+  UploadedFileSourceType file_source = 15;
+  string third_party_file_id = 16;
+  string third_party_file_mime_type = 17;
+  string current_conversation_id = 18;
+  string root_asset_id = 19;
+  string source_conversation_id = 20;
+  string asset_diff = 21;
+  bool is_model_generated = 22;
+  bytes update_time = 23;
+  bool is_latest = 24;
+  ArtifactInlineStatusType inline_status = 25;
+  bool is_root_asset_created_by_model = 26;
+  string root_asset_source_conversation_id = 27;
+  string workspace_sharing_key = 28;
+  string workspace_sharing_preview_image_key = 29;
+  string team_id = 30;
+  bool shared_with_team = 31;
+  repeated string shared_with_user_ids = 32;
+  string hd_key = 37;
+  string hd_1080_key = 38;
+}
+
+message AutoTopupRule {
+  bool enabled = 1;
+  Cent min_before_hitting_sl = 2;
+  Cent topup_amount = 3;
+  Cent max_amount_per_month = 4;
+}
+
+message BatchSetIsReadForTaskResultRequest {
+  repeated string task_result_ids = 1;
+  bool value_ = 2;
+}
+
+message BillingCycle {
+  int32 year = 1;
+  int32 month = 2;
+}
+
+message BillingPeriodUsage {
+  BillingCycle billing_cycle = 1;
+  Cent included_used = 2;
+  Cent on_demand_used = 3;
+  Cent total_used = 4;
+}
+
+message CheckPaymentSetupFinalizedResponse {
+  bool has_billing_info = 1;
+  bool has_payment_method = 2;
+}
+
+message CloneAssetRequest {
+  string asset_id = 1;
+}
+
+message Content {
+  string text = 1;
+  AssetMetadata asset = 2;
+}
+
+message ContentRequest {
+  string text = 1;
+  string asset_id = 2;
+}
+
+message CreateAssetRequest {
+  string name = 1;
+  string mime_type = 2;
+  bytes content = 3;
+  bool make_public = 4;
+  UploadedFileSourceType file_source = 5;
+  string third_party_file_id = 6;
+  string third_party_file_mime_type = 7;
+  string asset_id = 8;
+  string root_asset_id = 9;
+  string current_conversation_id = 10;
+  string source_conversation_id = 11;
+  string asset_diff = 12;
+  bool is_model_generated = 13;
+  string response_id = 14;
+  bytes update_time = 15;
+  bool should_generate_name = 16;
+}
+
+message CreateBillingPortalSessionRequest {
+  string configuration = 1;
+  PortalSessionFlowData flow_data = 2;
+  string return_url = 3;
+}
+
+message CreateBillingPortalSessionResponse {
+  string url = 1;
+}
+
+message CreateStripeCustomerRequest {
+  BillingInfo billing_info = 1;
+}
+
+message CreateStripeCustomerResponse {
+}
+
+message CreateSystemPromptRequest {
+  string name = 1;
+  repeated ContentRequest content = 2;
+}
+
+message CreateTaskRequest {
+  string name = 1;
+  string prompt = 2;
+  string metadata_json_string = 3;
+  CreateTaskScheduleRequest schedule = 4;
+  NotificationUiOption notification_method = 5;
+  ModelMode model_mode = 6;
+  bool notification_decider_enable = 7;
+  string notification_decider_guideline = 8;
+  string model_name = 9;
+  string response_id = 10;
+  repeated string toolset = 11;
+}
+
+message CreateTaskScheduleRequest {
+  TaskCadence task_cadence = 2;
+  bool is_enabled = 3;
+  string iso_utc_schedule = 4;
+  string timezone = 5;
+  string time_of_day = 6;
+  int32 day_of_week = 7;
+  int32 day_of_month = 8;
+  string day_of_year = 9;
+}
+
+message CreateWorkspaceRequest {
+  string name = 1;
+  string icon = 2;
+  string custom_personality = 3;
+}
+
+message DeleteAssetRequest {
+  string asset_id = 1;
+}
+
+message DeleteSystemPromptRequest {
+  string system_prompt_id = 1;
+}
+
+message DeleteWorkspaceRequest {
+  string workspace_id = 1;
+}
+
+message DiscountDetails {
+  float percentage_off = 1;
+  uint32 duration_months = 2;
+}
+
+message File {
+  string name = 1;
+  string path = 2;
+  bool is_directory = 3;
+  int64 size = 4;
+  string mime_type = 5;
+  bytes modified_at = 6;
+}
+
+message FreeTrialDetails {
+  uint32 trial_days = 1;
+}
+
+message GetAssetMetadataRequest {
+  string asset_id = 1;
+}
+
+message GetAutoTopupRuleResponse {
+  AutoTopupRule rule = 1;
+}
+
+message GetAutoTopupStatsResponse {
+  int64 curr_num_of_topups_in_24_hours = 1;
+  int64 max_num_of_topups_in_24_hours = 2;
+  Cent amount_topped_up_this_bp = 3;
+}
+
+message GetFileContentRequest {
+  string conversation_id = 1;
+  string path = 2;
+  string share_link_id = 3;
+  bool is_download = 4;
+}
+
+message GetFileContentResponse {
+  string data_url = 1;
+  string mime_type = 2;
+  int64 size = 3;
+  bool is_truncated = 4;
+  string signed_url = 5;
+  string download_signed_url = 6;
+}
+
+message GetGoogleObfuscatedIdRequest {
+}
+
+message GetGoogleObfuscatedIdResponse {
+  string obfuscated_id = 1;
+  SubscriptionList existing_active_subscriptions = 2;
+}
+
+message GetGrokBuildBillingConfigResponse {
+  GrokBuildBillingConfig config = 1;
+}
+
+message GetGrokCreatedTasksByConversationIdRequest {
+  string conversation_id = 1;
+}
+
+message GetGrokCreditsConfigResponse {
+  GrokCreditsConfig config = 1;
+}
+
+message GetLatestAssetMetadataVersionRequest {
+  string root_asset_id = 1;
+}
+
+message GetProductsInfoRequest {
+  SubscriptionProvider provider = 1;
+  UserActivity user_activity = 2;
+}
+
+message GetProductsInfoResponse {
+  Products google = 1;
+  Products apple = 2;
+  Products stripe = 3;
+  Products x = 4;
+  Products paypal = 5;
+  Products braintree = 6;
+}
+
+message GetStatRequest {
+}
+
+message GetStorageUsageInfoRequest {
+}
+
+message GetStorageUsageInfoResponse {
+  int64 total_storage_bytes = 1;
+  int64 used_storage_bytes = 2;
+  int64 total_generated_video_storage_bytes = 3;
+  int64 used_generated_video_storage_bytes = 4;
+}
+
+message GetSubscriptionsRequest {
+  SubscriptionProvider provider = 1;
+  SubscriptionStatus status = 2;
+}
+
+message GetSubscriptionsResponse {
+  repeated Subscription subscriptions = 1;
+}
+
+message GetSystemPromptRequest {
+  string system_prompt_id = 1;
+}
+
+message GetTaskByConversationIdIfExistsRequest {
+  string conversation_id = 1;
+}
+
+message GetTaskWithResultsRequest {
+  string task_id = 1;
+}
+
+message GetTeamsWhereUserHasActiveSubResponse {
+  repeated PublicTeam public_teams = 1;
+}
+
+message GetUserTasksRequest {
+}
+
+message GetWorkspaceRequest {
+  string workspace_id = 1;
+}
+
+message GoogleLapsedPayment {
+  string product_id = 1;
+}
+
+message GrokBuildBillingConfig {
+  Cent monthly_limit = 1;
+  Cent used = 2;
+  Cent on_demand_cap = 3;
+  bytes billing_period_start = 4;
+  bytes billing_period_end = 5;
+  repeated BillingPeriodUsage history = 6;
+}
+
+message GrokCreditsConfig {
+  float credit_usage_percent = 1;
+  Cent on_demand_cap = 2;
+  Cent on_demand_used = 3;
+  bytes billing_period_start = 4;
+  bytes billing_period_end = 5;
+  repeated PeriodUsage history = 6;
+  repeated ProductUsage product_usage = 7;
+  UsagePeriod current_period = 8;
+  bool is_unified_billing_user = 11;
+  Cent prepaid_balance = 12;
+}
+
+message InternalStats {
+  string stats_json = 1;
+}
+
+message LapsedPaymentInGracePeriod {
+  bytes grace_period_end = 1;
+}
+
+message LapsedPaymentInfo {
+  LapsedPaymentInGracePeriod in_grace_period = 1;
+  LapsedPaymentOnHold on_hold = 2;
+  StripeLapsedPayment stripe = 10;
+  AppleLapsedPayment apple = 11;
+  GoogleLapsedPayment google = 12;
+}
+
+message LapsedPaymentOnHold {
+  bytes suspended_at = 1;
+}
+
+message ListAllAssetVersionsRequest {
+  string root_asset_id = 1;
+}
+
+message ListAllAssetVersionsResponse {
+  repeated AssetMetadata assets = 1;
+}
+
+message ListAssetMetadataRequest {
+  enum OrderBy {
+    ORDER_BY_INVALID = 0;
+    ORDER_BY_RELEVANCY = 1;
+    ORDER_BY_CREATE_TIME = 2;
+    ORDER_BY_LAST_USE_TIME = 3;
+    ORDER_BY_NAME = 4;
+    ORDER_BY_MIME_TYPE = 5;
+    ORDER_BY_CONTENT_SIZE = 9;
+  }
+
+  string query = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+  repeated string mime_types = 4;
+  ListAssetMetadataRequest.OrderBy order_by = 6;
+  string workspace_id = 7;
+  AssetSource source = 8;
+  repeated string asset_ids = 9;
+  bool is_latest = 10;
+  bool shared_with_me = 11;
+  bool include_imagine_files = 12;
+}
+
+message ListAssetMetadataResponse {
+  repeated AssetMetadata assets = 1;
+  string next_page_token = 2;
+}
+
+message ListFilesRequest {
+  string conversation_id = 1;
+  string path = 2;
+  string page_token = 3;
+  int32 page_size = 4;
+  string share_link_id = 5;
+}
+
+message ListFilesResponse {
+  repeated File files = 1;
+  string path = 2;
+  string next_page_token = 3;
+}
+
+message ListPaymentMethodsResponse {
+  repeated PaymentMethodInfo payment_methods = 1;
+}
+
+message ListPrepaidBalanceChangesResponse {
+  repeated PrepaidBalanceChange changes = 1;
+  Cent total = 2;
+}
+
+message ListSystemPromptsRequest {
+  enum OrderBy {
+    ORDER_BY_INVALID = 0;
+    ORDER_BY_RELEVANCY = 1;
+    ORDER_BY_CREATE_TIME = 2;
+    ORDER_BY_LAST_USE_TIME = 3;
+    ORDER_BY_NAME = 4;
+  }
+
+  string query = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+  ListSystemPromptsRequest.OrderBy order_by = 4;
+}
+
+message ListSystemPromptsResponse {
+  repeated SystemPrompt assets = 1;
+  string next_page_token = 2;
+}
+
+message ListWorkspacesRequest {
+  enum OrderBy {
+    ORDER_BY_INVALID = 0;
+    ORDER_BY_RELEVANCY = 1;
+    ORDER_BY_CREATE_TIME = 2;
+    ORDER_BY_LAST_USE_TIME = 3;
+    ORDER_BY_NAME = 4;
+  }
+
+  string query = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+  ListWorkspacesRequest.OrderBy order_by = 4;
+}
+
+message ListWorkspacesResponse {
+  repeated Workspace workspaces = 1;
+  string next_page_token = 2;
+}
+
+message OptionalTaskWithSchedule {
+  TaskWithSchedule task = 1;
+  TaskResult result = 2;
+}
+
+message PauseTaskScheduleRequest {
+  string schedule_id = 1;
+  bool is_enabled = 2;
+}
+
+message PayUpfrontDetails {
+  uint32 months_paid = 1;
+  uint32 months_free = 2;
+  float percentage_off = 3;
+}
+
+message PaymentMethodInfo {
+  string payment_method_id = 1;
+  string payment_type = 2;
+  BillingInfo billing_info = 3;
+  CardDetails card_details = 4;
+  LinkDetails link_details = 6;
+  bytes added_ts = 7;
+}
+
+message PeriodUsage {
+  BillingCycle billing_cycle = 1;
+  Cent on_demand_used = 2;
+  UsagePeriod period = 3;
+}
+
+message PortalSessionFlowData {
+  message FlowDataAfterCompletion {
+    message HostedConfirmation {
+      string custom_message = 1;
+    }
+
+    message RedirectToUrl {
+      string return_url = 1;
+    }
+
+    AfterCompletionType type = 1;
+    PortalSessionFlowData.FlowDataAfterCompletion.HostedConfirmation hosted_confirmation = 2;
+    PortalSessionFlowData.FlowDataAfterCompletion.RedirectToUrl redirect = 3;
+  }
+
+  message FlowDataSubscriptionCancel {
+    message Retention {
+      message CouponOffer {
+        string coupon = 1;
+      }
+
+      PortalSessionFlowData.FlowDataSubscriptionCancel.Retention.CouponOffer coupon_offer = 1;
+    }
+
+    string subscription = 1;
+    PortalSessionFlowData.FlowDataSubscriptionCancel.Retention retention = 2;
+  }
+
+  message FlowDataSubscriptionUpdate {
+    string subscription = 1;
+  }
+
+  BillingPortalFlowType type = 1;
+  PortalSessionFlowData.FlowDataAfterCompletion after_completion = 2;
+  PortalSessionFlowData.FlowDataSubscriptionCancel subscription_cancel = 3;
+  PortalSessionFlowData.FlowDataSubscriptionUpdate subscription_update = 4;
+}
+
+message PrepaidBalanceChange {
+  enum ChangeOrigin {
+    INVALID_ORIGIN = 0;
+    PURCHASE = 1;
+    SPEND = 2;
+    REFUND = 3;
+    MANUAL = 4;
+    AUTO_PURCHASE = 5;
+  }
+
+  enum TopUpStatus {
+    INVALID = 0;
+    TO_GENERATE_INVOICE = 1;
+    FAILED_TO_GENERATE_INVOICE = 2;
+    TO_CHARGE = 3;
+    FAILED_TO_CHARGE = 4;
+    SUCCEEDED = 5;
+  }
+
+  Cent amount = 1;
+  string invoice_id = 2;
+  string invoice_reference = 3;
+  bytes create_time = 4;
+  PrepaidBalanceChange.TopUpStatus topup_status = 5;
+  PrepaidBalanceChange.ChangeOrigin change_origin = 6;
+}
+
+message ProductUsage {
+  Product product = 1;
+  float usage_percent = 2;
+}
+
+message PublicTeam {
+  string team_id = 1;
+  string name = 2;
+}
+
+message RemoveAssetRequest {
+  string workspace_id = 1;
+  string asset_id = 2;
+}
+
+message RemoveConversationRequest {
+  string workspace_id = 1;
+  string conversation_id = 2;
+}
+
+message ResetAssetConversationRequest {
+  string asset_id = 1;
+}
+
+message RestoreAssetVersionRequest {
+  string asset_id = 1;
+}
+
+message ScheduledChange {
+  ScheduledChangeType type = 1;
+  SubscriptionTier target_tier = 2;
+  BillingInterval target_interval = 3;
+}
+
+message SearchAssetMetadataMatch {
+  AssetMetadata asset_metadata = 1;
+  string highlight = 2;
+  string name_highlight = 3;
+}
+
+message SearchAssetMetadataRequest {
+  string query = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+  repeated string mime_types = 4;
+  AssetSource source = 5;
+}
+
+message SearchAssetMetadataResponse {
+  repeated SearchAssetMetadataMatch matches = 1;
+  string next_page_token = 2;
+}
+
+message SetAutoTopupRuleRequest {
+  AutoTopupRule rule = 1;
+}
+
+message SetAutoTopupRuleResponse {
+}
+
+message SetDefaultPaymentMethodRequest {
+  string payment_method_id = 1;
+}
+
+message SetDefaultPaymentMethodResponse {
+}
+
+message SetGrokBuildOnDemandConfigRequest {
+  Cent cap = 1;
+}
+
+message SetGrokBuildOnDemandConfigResponse {
+}
+
+message SetIsReadForTaskResultRequest {
+  string task_result_id = 1;
+  bool value_ = 2;
+}
+
+message ShareAssetRequest {
+  string asset_id = 1;
+  repeated string team_members_to_share = 3;
+  bool share_with_team_members = 4;
+}
+
+message ShareAssetResponse {
+  string root_asset_id = 1;
+}
+
+message StripeLapsedPayment {
+  string subscription_id = 1;
+  StripeSubscriptionStatus stripe_status = 2;
+}
+
+message StripeUiLocationEmbedded {
+  string return_url = 1;
+  bool is_embedded = 2;
+}
+
+message StripeUiLocationStripeHosted {
+  string success_url = 1;
+}
+
+message SubscribeViaStripeRequest {
+  StripeUiLocationEmbedded embedded = 2;
+  StripeUiLocationStripeHosted stripe_hosted = 3;
+  string price_id = 4;
+  string discount_id = 5;
+  SubscriptionType subscription_type = 6;
+  string x_prem_discount_code_month = 7;
+  string x_prem_discount_code_year = 8;
+  string edu_discount_code_month = 9;
+  string edu_discount_code_year = 10;
+  PaymentMethodTypes allowed_payment_method_types = 11;
+  bool ignore_existing_active_subscriptions = 20;
+}
+
+message SubscribeViaStripeResponse {
+  string client_secret = 1;
+  string url = 2;
+  repeated SubscriptionProvider ignored_due_to_active_subscriptions = 3;
+}
+
+message Subscription {
+  SubscriptionProviderGoogle google = 1;
+  SubscriptionProviderApple apple = 2;
+  SubscriptionProviderStripe stripe = 3;
+  SubscriptionProviderX x = 4;
+  SubscriptionTier tier = 5;
+  SubscriptionStatus status = 6;
+  bytes create_time = 7;
+  bytes mod_time = 8;
+  string xai_user_id = 9;
+  SubscriptionProviderEnterprise enterprise = 10;
+  LapsedPaymentInfo lapsed_payment_info = 11;
+  SubscriptionProviderAdHoc adhoc = 20;
+  SubscriptionProviderEapi eapi = 21;
+  SubscriptionProviderPaypal paypal = 22;
+  SubscriptionProviderBraintree braintree = 23;
+  BillingInterval billing_interval = 30;
+  bytes billing_period_end = 32;
+  bool cancel_at_period_end = 33;
+  ScheduledChange scheduled_change = 34;
+  ActiveOffer active_offer = 35;
+  repeated ActiveOffer future_offers = 36;
+}
+
+message SubscriptionList {
+  repeated Subscription subscriptions = 1;
+}
+
+message SubscriptionProviderAdHoc {
+  string product_id = 1;
+}
+
+message SubscriptionProviderApple {
+  string txid = 1;
+  string original_txid = 2;
+  string bundle_id = 4;
+  string product_id = 5;
+  bool auto_renew_on = 6;
+}
+
+message SubscriptionProviderBraintree {
+  string subscription_id = 1;
+  string plan_id = 2;
+}
+
+message SubscriptionProviderEapi {
+  string product_id = 1;
+}
+
+message SubscriptionProviderEnterprise {
+  string team_id = 1;
+  string subscription_id = 2;
+}
+
+message SubscriptionProviderGoogle {
+  string purchase_token = 1;
+  string product_id = 2;
+  string base_plan_id = 3;
+  bytes expiry_time = 4;
+  bool auto_renew_enabled = 5;
+}
+
+message SubscriptionProviderPaypal {
+  string subscription_id = 1;
+  string plan_id = 2;
+}
+
+message SubscriptionProviderStripe {
+  string subscription_id = 1;
+  string invoice_id = 2;
+  string product_id = 3;
+  bytes current_period_end = 4;
+  bool cancel_at_period_end = 5;
+  SubscriptionType subscription_type = 6;
+}
+
+message SubscriptionProviderX {
+}
+
+message SystemPrompt {
+  string system_prompt_id = 1;
+  string name = 2;
+  bytes create_time = 3;
+  bytes last_use_time = 4;
+  repeated Content content = 5;
+}
+
+message Task {
+  string task_id = 1;
+  string user_id = 2;
+  string name = 3;
+  string prompt = 4;
+  string metadata_json_string = 5;
+  bool is_active = 6;
+  NotificationUiOption notification_method = 7;
+  ModelMode model_mode = 8;
+  bool notification_decider_enable = 9;
+  string notification_decider_guideline = 10;
+  string model_name = 11;
+  repeated string toolset = 12;
+  string team_id = 13;
+}
+
+message TaskIdWithOriginResponseId {
+  string task_id = 1;
+  string origin_response_id = 2;
+}
+
+message TaskIdsWithOriginResponseIds {
+  repeated TaskIdWithOriginResponseId task_id_with_response_ids = 1;
+}
+
+message TaskResult {
+  string task_result_id = 1;
+  string title = 2;
+  string conversation_id = 3;
+  TaskResultStatus status = 4;
+  string error = 5;
+  bytes create_time = 7;
+  bytes update_time = 8;
+  bool is_read = 9;
+  int32 exec_time = 10;
+  string schedule_id = 11;
+  TaskNotificationDecision notification_decision = 12;
+  string task_id = 13;
+}
+
+message TaskResults {
+  repeated TaskResult results = 1;
+  int32 next_page = 2;
+}
+
+message TaskSchedule {
+  string schedule_id = 1;
+  TaskCadence task_cadence = 3;
+  bool is_enabled = 4;
+  bytes next_run = 5;
+  int32 day_of_week = 6;
+  int32 day_of_month = 7;
+  string day_of_year = 8;
+  string time_of_day = 9;
+  string timezone = 10;
+  bool is_completed = 11;
+  bytes end_date = 12;
+}
+
+message TaskTool {
+  string id = 1;
+  string label = 2;
+  string icon = 3;
+  repeated string tool_ids = 4;
+  repeated string connector_ids = 5;
+}
+
+message TaskToolsResults {
+  repeated TaskTool tools = 1;
+}
+
+message TaskUsage {
+  float usage = 1;
+  float limit = 2;
+  int32 frequent_usage = 3;
+  int32 frequent_limit = 4;
+  int32 occasional_usage = 5;
+  int32 occasional_limit = 6;
+}
+
+message TaskUsageRequest {
+}
+
+message TaskWithSchedule {
+  Task task = 1;
+  repeated TaskSchedule schedules = 3;
+}
+
+message TopUpOrGetExistingPendingChangeRequest {
+  Cent amount = 1;
+}
+
+message TopUpOrGetExistingPendingChangeResponse {
+  PrepaidBalanceChange change = 1;
+}
+
+message UnreadCountForTask {
+  string task_id = 1;
+  int32 unread_count = 2;
+}
+
+message UpdateAssetRequest {
+  string asset_id = 1;
+  bool make_new_version = 2;
+  string name = 3;
+  bytes content = 4;
+}
+
+message UpdateSystemPromptRequest {
+  string system_prompt_id = 1;
+  string name = 2;
+  repeated Content content = 3;
+}
+
+message UpdateTaskRequest {
+  string task_id = 1;
+  string schedule_id = 2;
+  CreateTaskRequest updated_task = 3;
+}
+
+message UpdateWorkspaceRequest {
+  string workspace_id = 1;
+  string name = 2;
+  string icon = 3;
+  string custom_personality = 4;
+  bool is_public = 5;
+}
+
+message UsagePeriod {
+  UsagePeriodType type = 1;
+  bytes start = 2;
+  bytes end = 3;
+}
+
+message UserTasks {
+  repeated TaskWithSchedule tasks = 1;
+}
+
+message UserTasksWithUnreadResults {
+  repeated TaskWithSchedule tasks = 1;
+  repeated TaskResult unread_results = 2;
+  repeated UnreadCountForTask unread_counts = 3;
+  TaskUsage task_usage = 4;
+}
+
+message Workspace {
+  string workspace_id = 1;
+  string name = 2;
+  bytes create_time = 3;
+  bytes last_use_time = 4;
+  string icon = 5;
+  string custom_personality = 6;
+  bool is_public = 7;
+  bool is_readonly = 8;
+}
+
+message getTaskResultsRequest {
+  string task_id = 1;
+  int32 next_page = 2;
+  int32 limit = 3;
+}

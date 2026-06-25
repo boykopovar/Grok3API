@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package auth_frontend;
+
+message CreateAnonUserRequest {
+  bytes user_public_key = 1;
+}
+
+message CreateSessionRequest {
+  CreateSessionRequest.Credentials credentials = 1;
+  string session_id = 7;
+  bool prompt_on_duplicate_email = 8;
+  string castle_request_token = 10;
+}
