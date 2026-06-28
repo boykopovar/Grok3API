@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import base64
 import datetime
-import getpass
 import hashlib
 import random
 import secrets
@@ -20,6 +19,8 @@ SERVICE_PATH: str = "/auth_frontend.AuthFrontend"
 USER_AGENT: str = "grpc-java-okhttp/1.67.0-SNAPSHOT"
 CONTENT_TYPE: str = "application/grpc"
 TOS_VERSION: int = 5
+REQUEST_TIMEOUT: int = 15
+CONNECT_TIMEOUT: int = 10
 
 _STEP_KEYGEN: str = "keygen"
 _STEP_SIGN: str = "sign"
@@ -36,6 +37,7 @@ _MSG_BYTES_HEX: str = "bytes hex"
 _MSG_NOT_FOUND: str = "not found in response"
 _MSG_WIRE_TYPE: str = "Unknown wire type"
 _MSG_AT_TAG: str = "at tag"
+_MSG_CONNECTING: str = "connecting..."
 
 _HDR_CONTENT_TYPE: str = "content-type"
 _HDR_ENCODING: str = "grpc-encoding"
@@ -203,8 +205,14 @@ def _grpc_post(
 ) -> bytes:
     url: str = f"{GRPC_BASE}{SERVICE_PATH}/{method}"
     frame: bytes = _encode_grpc_frame(proto_body)
-    _log(method, f"POST {url} — frame {len(frame)}{_SFX_BYTES}")
-    resp = session.post(url, content=frame, headers=headers, http_version=2)
+    _log(method, f"POST {url} — frame {len(frame)}{_SFX_BYTES} — {_MSG_CONNECTING}")
+    resp = session.post(
+        url,
+        content=frame,
+        headers=headers,
+        http_version=2,
+        timeout=(CONNECT_TIMEOUT, REQUEST_TIMEOUT),
+    )
     _log(method, f"HTTP {resp.status_code}")
     if resp.status_code != 200:
         raise RuntimeError(f"{method} failed HTTP {resp.status_code}: {resp.text[:300]}")
@@ -331,7 +339,9 @@ def step_set_tos(
 
 def register(email: str, password: str, birth_unix: int) -> Session:
     _log(_STEP_REGISTER, f"Starting registration email={email}")
-    http_session: cffi_requests.Session = cffi_requests.Session(impersonate="chrome120")
+    _log(_STEP_REGISTER, "Creating HTTP/2 session")
+    http_session: cffi_requests.Session = cffi_requests.Session()
+    _log(_STEP_REGISTER, "Session created")
     keys: AnonKeys = step_generate_keys()
     anon_user: AnonUser = step_create_anon_user(http_session, keys)
     challenge: Challenge = step_create_challenge(http_session, anon_user)
@@ -355,10 +365,16 @@ def _random_adult_birth_unix() -> int:
     return int(dt.timestamp())
 
 
+def _read_password() -> str:
+    sys.stderr.write("Password: ")
+    sys.stderr.flush()
+    return sys.stdin.readline().rstrip("\n")
+
+
 def _prompt_credentials() -> Tuple[str, str]:
     argc: int = len(sys.argv)
     email: str = sys.argv[1] if argc > 1 else input("Email: ")
-    password: str = sys.argv[2] if argc > 2 else getpass.getpass("Password: ")
+    password: str = sys.argv[2] if argc > 2 else _read_password()
     return email, password
 
 
