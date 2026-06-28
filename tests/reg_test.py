@@ -208,7 +208,7 @@ def _grpc_post(
     _log(method, f"POST {url} — frame {len(frame)}{_SFX_BYTES} — {_MSG_CONNECTING}")
     resp = session.post(
         url,
-        content=frame,
+        data=frame,
         headers=headers,
         http_version=2,
         timeout=(CONNECT_TIMEOUT, REQUEST_TIMEOUT),
@@ -277,7 +277,7 @@ def step_build_credentials(
     digest: bytes = hashlib.sha256(challenge.challenge_bytes).digest()
     _log(_STEP_SIGN, f"sha256(challenge)={digest.hex()}")
     pk = coincurve.PrivateKey(keys.private_key)
-    sig: bytes = pk.sign(digest, hasher=None)
+    sig: bytes = pk.sign_recoverable(digest, hasher=None)[:64]
     _log(_STEP_SIGN, f"signature={sig.hex()} ({len(sig)}{_SFX_BYTES}, compact r||s)")
     challenge_b64: str = base64.b64encode(challenge.challenge_bytes).decode()
     signature_b64: str = base64.b64encode(sig).decode()
