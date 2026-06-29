@@ -1,31 +1,32 @@
 from typing import Type
 
-from aiohttp import ClientResponse
+from curl_cffi.requests import Response
 
 from grok3api.types.exceptions import *
 
 _UNAVAILABLE_REGION_TEXT = 'This service is not available in your region.'
 _TOO_MANY_REQUESTS_TEXT = 'too many requests'
 
-async def raise_for_rest(response: ClientResponse) -> None:
-    if response.status != 200:
-        raw = await response.text()
+async def raise_for_rest(response: Response) -> None:
+    if response.status_code != 200:
+        await response.aread()
+        raw = response.text
         error_type: Type[GrokRestError] = GrokRestError
 
         if _UNAVAILABLE_REGION_TEXT in raw:
             error_type = GrokUnavailableRegionError
             raw = _UNAVAILABLE_REGION_TEXT
 
-        error_msg: str = f"HTTP {response.status}: {raw}"
+        error_msg: str = f"HTTP {response.status_code}: {raw}"
 
         error = error_type(error_msg)
-        error.status_code = response.status
+        error.status_code = response.status_code
         error.headers = response.headers
 
         raise error
 
 
-def raise_for_grpc(response: ClientResponse) -> None:
+def raise_for_grpc(response: Response) -> None:
     grpc_status = response.headers.get("grpc-status", "0")
 
     if grpc_status == "0":

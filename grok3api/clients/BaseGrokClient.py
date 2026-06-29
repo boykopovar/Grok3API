@@ -1,6 +1,6 @@
 from typing import Dict, Optional, Tuple, Type, AsyncIterator
 
-from aiohttp import ClientSession, ClientTimeout, TCPConnector
+from curl_cffi.requests import AsyncSession
 
 from grok3api.types import ResponseChunk, TokenChunk
 from grok3api.types.exceptions.handle import raise_for_rest, raise_for_grpc
@@ -27,9 +27,7 @@ class BaseGrokClient:
         self._ssl = ssl
         self._connector_limit = connector_limit
 
-        self._connector: Optional[TCPConnector] = None
-
-        self._session: Optional[ClientSession] = None
+        self._session: Optional[AsyncSession] = None
 
     async def __aenter__(self) -> "BaseGrokClient":
         await self.open()
@@ -44,26 +42,20 @@ class BaseGrokClient:
 
     @property
     def is_open(self) -> bool:
-        return (
-            self._session is not None
-            and not self._session.closed
+        return self._session is not None
+
+    def _create_session(self) -> AsyncSession:
+        return AsyncSession(
+            impersonate="chrome131_android",
+            timeout=self._timeout,
+            verify=self._ssl,
         )
 
     async def open(self) -> None:
         if self.is_open:
             return
 
-        self._connector = TCPConnector(
-            ssl=self._ssl,
-            limit=self._connector_limit,
-        )
-
-        self._session = ClientSession(
-            timeout=ClientTimeout(
-                total=self._timeout,
-            ),
-            connector=self._connector,
-        )
+        self._session = self._create_session()
 
         await self.create_anonymous_account()
 
@@ -71,10 +63,6 @@ class BaseGrokClient:
         if self._session is not None:
             await self._session.close()
             self._session = None
-
-        if self._connector is not None:
-            await self._connector.close()
-            self._connector = None
 
     def _ensure_session(self) -> None:
         assert self._session is not None
@@ -106,17 +94,18 @@ class BaseGrokClient:
         self._ensure_session()
         self._ensure_credentials()
 
-        async with self._session.post(
+        buffer = bytearray()
+
+        async with self._session.stream(
+                "POST",
                 BASE_URL + endpoint,
                 data=grpc_frame(payload),
                 headers=self._build_headers(self._credential.headers),
         ) as response:
-            if response.status != 200:
+            if response.status_code != 200:
                 await raise_for_rest(response)
 
-            buffer = bytearray()
-
-            async for chunk in response.content.iter_any():
+            async for chunk in response.aiter_content():
                 buffer.extend(chunk)
 
                 while True:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import base64
 import datetime
 import hashlib
@@ -11,7 +12,11 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
 import coincurve
-from curl_cffi import requests as cffi_requests
+import curl_cffi
+from aiohttp import ClientSession
+from curl_cffi import requests as cffi_requests, AsyncSession
+
+from grok3api.utils.api.anon_session import AnonCredential, generate_anon_credential
 
 HOST: str = "accounts.x.ai"
 GRPC_BASE: str = f"https://{HOST}"
@@ -167,12 +172,6 @@ class Challenge:
     challenge_bytes: bytes
 
 
-@dataclass
-class AnonCredentials:
-    anon_user_id: str
-    challenge_b64: str
-    signature_b64: str
-
 
 @dataclass
 class Session:
@@ -189,7 +188,7 @@ def _base_headers() -> Dict[str, str]:
     }
 
 
-def _auth_headers(creds: AnonCredentials) -> Dict[str, str]:
+def _auth_headers(creds: AnonCredential) -> Dict[str, str]:
     h: Dict[str, str] = _base_headers()
     h[_HDR_ANON_ID] = creds.anon_user_id
     h[_HDR_CHALLENGE] = creds.challenge_b64
@@ -272,7 +271,7 @@ def step_build_credentials(
     anon_user: AnonUser,
     keys: AnonKeys,
     challenge: Challenge,
-) -> AnonCredentials:
+) -> AnonCredential:
     _log(_STEP_SIGN, "Computing SHA-256 of challenge bytes")
     digest: bytes = hashlib.sha256(challenge.challenge_bytes).digest()
     _log(_STEP_SIGN, f"sha256(challenge)={digest.hex()}")
@@ -283,7 +282,7 @@ def step_build_credentials(
     signature_b64: str = base64.b64encode(sig).decode()
     _log(_STEP_SIGN, f"x-challenge={challenge_b64}")
     _log(_STEP_SIGN, f"x-signature={signature_b64}")
-    return AnonCredentials(
+    return AnonCredential(
         anon_user_id=anon_user.anon_user_id,
         challenge_b64=challenge_b64,
         signature_b64=signature_b64,
@@ -292,7 +291,7 @@ def step_build_credentials(
 
 def step_create_session(
     session: cffi_requests.Session,
-    creds: AnonCredentials,
+    creds: AnonCredential,
     email: str,
     password: str,
 ) -> Session:
@@ -317,7 +316,7 @@ def step_create_session(
 
 def step_set_birth_date(
     session: cffi_requests.Session,
-    creds: AnonCredentials,
+    creds: AnonCredential,
     birth_unix: int,
 ) -> None:
     _log(_STEP_BIRTH, f"Setting birth date unix={birth_unix}")
@@ -329,7 +328,7 @@ def step_set_birth_date(
 
 def step_set_tos(
     session: cffi_requests.Session,
-    creds: AnonCredentials,
+    creds: AnonCredential,
 ) -> None:
     _log(_STEP_TOS, f"Accepting ToS version={TOS_VERSION}")
     proto_body: bytes = _encode_int32_field(2, TOS_VERSION)
@@ -337,15 +336,10 @@ def step_set_tos(
     _log_empty(_STEP_TOS, payload)
 
 
-def register(email: str, password: str, birth_unix: int) -> Session:
-    _log(_STEP_REGISTER, f"Starting registration email={email}")
-    _log(_STEP_REGISTER, "Creating HTTP/2 session")
+async def register(email: str, password: str, birth_unix: int) -> Session:
     http_session: cffi_requests.Session = cffi_requests.Session()
-    _log(_STEP_REGISTER, "Session created")
-    keys: AnonKeys = step_generate_keys()
-    anon_user: AnonUser = step_create_anon_user(http_session, keys)
-    challenge: Challenge = step_create_challenge(http_session, anon_user)
-    creds: AnonCredentials = step_build_credentials(anon_user, keys, challenge)
+    async_session = AsyncSession(impersonate="chrome131_android")
+    creds: AnonCredential = await generate_anon_credential(async_session)
     sess: Session = step_create_session(http_session, creds, email, password)
     step_set_birth_date(http_session, creds, birth_unix)
     step_set_tos(http_session, creds)
@@ -378,12 +372,12 @@ def _prompt_credentials() -> Tuple[str, str]:
     return email, password
 
 
-if __name__ == "__main__":
+async def main() -> None:
     _email, _password = _prompt_credentials()
     _birth_unix: int = _random_adult_birth_unix()
     _birth_date: datetime.date = datetime.datetime.utcfromtimestamp(_birth_unix).date()
     print(f"[main] Using birth date: {_birth_date} (unix={_birth_unix})")
-    result: Session = register(
+    result: Session = await register(
         email=_email,
         password=_password,
         birth_unix=_birth_unix,
@@ -391,3 +385,7 @@ if __name__ == "__main__":
     print(f"\nResult:")
     print(f"  session_id:     {result.session_id}")
     print(f"  session_cookie: {result.session_cookie}")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

@@ -4,7 +4,7 @@ import struct
 from dataclasses import dataclass
 from typing import Dict, Union, List
 
-from aiohttp import ClientSession
+from curl_cffi.requests import AsyncSession
 from coincurve import PrivateKey
 
 from grok3api.types.exceptions.handle import raise_for_rest, raise_for_grpc
@@ -73,26 +73,26 @@ def _grpc_unframe(raw: bytes) -> List[bytes]:
 
 
 async def _anon_unary(
-        session: ClientSession,
+        session: AsyncSession,
         method: str,
         payload: bytes,
 ) -> bytes:
-    async with session.post(
+    response = await session.post(
         BASE_URL + method,
         data=grpc_frame(payload),
         headers=DEFAULT_ANON_HEADERS.copy(),
-    ) as response:
-        raw: bytes = await response.read()
-        raise_for_grpc(response)
+    )
+    raw: bytes = response.content
+    raise_for_grpc(response)
 
-        if response.status != 200:
-            await raise_for_rest(response)
+    if response.status_code != 200:
+        await raise_for_rest(response)
 
-        return _grpc_unframe(raw)[0]
+    return _grpc_unframe(raw)[0]
 
 
 async def generate_anon_credential(
-        session: ClientSession,
+        session: AsyncSession,
 ) -> AnonCredential:
     private_key: PrivateKey = PrivateKey()
 
