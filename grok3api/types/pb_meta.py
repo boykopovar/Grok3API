@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum, auto
+from enum import Enum, auto, IntEnum
 from typing import Any, Optional, Type
 
 
@@ -22,6 +22,8 @@ class WireType(Enum):
     JSON_VALUE = auto()
     FIELD_MASK = auto()
     MAP_FIELD = auto()
+    MAP_IGNORED = auto()
+
 
     @property
     def is_repeated(self) -> bool:
@@ -64,5 +66,25 @@ class ProtoField:
     map_value_type: Optional[str] = None
 
 
+
+
+class StreamFrameTag(IntEnum):
+    ADD_RESPONSE = 1
+    CONVERSATION = 2
+    TITLE = 3
+
+
+class AddResponseTag(IntEnum):
+    TOKEN = 2
+    MODEL_RESPONSE = 3
+    SIDE_BY_SIDE_INDEX = 14
+    FINAL_METADATA = 15
+    IS_THINKING = 16
+    IS_SOFT_STOP = 17
+    MESSAGE_TAG = 18
+    MESSAGE_STEP_ID = 19
+    RESPONSE_ID = 20
+    STREAMING_METADATA = 29
+    SURVEY = 41
 
 
